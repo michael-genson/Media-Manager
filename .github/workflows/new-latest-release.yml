@@ -18,8 +18,6 @@ jobs:
         uses: EndBug/latest-tag@v1.5.1
 
   publish_docker_image:
-    needs: bump_version
-
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     steps:
@@ -44,5 +42,5 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: mgenson/media-manager:latest
           labels: ${{ steps.meta.outputs.labels }}
