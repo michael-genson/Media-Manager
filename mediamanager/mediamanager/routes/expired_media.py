@@ -88,7 +88,7 @@ async def get_expired_media(
     return sorted(expired_media, key=lambda x: x.media.media_summary.added_at)
 
 
-@scheduler.task(cron(schedules.expired_media))
+@scheduler.task(cron(schedules.scheduler_expired_media))
 async def _send_notification_of_expired_media() -> None:
     svcs = ServiceFactory()
 

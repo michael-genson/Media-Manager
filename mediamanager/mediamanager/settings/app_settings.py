@@ -32,7 +32,6 @@ class AppSecrets(BaseSettings):
     @validator("app_api_key", "ombi_url", "ombi_api_key", "tautulli_url", "tautulli_api_key")
     def assert_value(cls, v: T, field: ModelField) -> T:
         if not v:
-            return v
             raise ValueError(f"{field.name} must not be empty")
 
         return v
@@ -52,7 +51,6 @@ class AppSettings(BaseSettings):
     @validator("admin_email")
     def assert_value(cls, v: T, field: ModelField) -> T:
         if not v:
-            return v
             raise ValueError(f"{field.name} must not be empty")
 
         return v
@@ -63,21 +61,12 @@ class AppSettings(BaseSettings):
 
 
 class ExpiredMediaSettings(BaseSettings):
-    expired_media_frequency: int = 1
-    """How often to check for expired media, in days"""
     expired_media_min_age: int = 120
     """How old media must be before it can be considered expired, in days"""
     expired_media_last_watched_threshold: int = 90
     """The threshold of when media is considered expired, in days"""
     expired_media_ignore_filepath: str = "/config/expired_media_ignore.json"
     """The expiration blacklist JSON config filepath"""
-
-    @validator("expired_media_frequency")
-    def assert_positive_value(cls, v: int, field: ModelField) -> int:
-        if v <= 0:
-            raise ValueError(f"{field.name} must be an integer greater than 0")
-
-        return v
 
     @validator("expired_media_min_age", "expired_media_last_watched_threshold")
     def assert_non_negative_value(cls, v: int, field: ModelField) -> int:
