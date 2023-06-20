@@ -1,4 +1,4 @@
-name: Publish Docker image
+name: New Latest Release
 
 on:
   push:
@@ -6,7 +6,20 @@ on:
       - main
 
 jobs:
-  push_to_registry:
+  bump_version:
+    name: Bump Version
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
+      - name: "Update Latest Tag"
+        uses: EndBug/latest-tag@v1.5.1
+
+  publish_docker_image:
+    needs: bump_version
+
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     steps:
