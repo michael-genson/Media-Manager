@@ -1,23 +1,23 @@
-import os
-import pathlib
-
 from fastapi import FastAPI, HTTPException, status
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from .settings import app_settings, scheduler_settings
+from .settings import _app_settings, scheduler_settings
 
 ### App Setup ###
-current_dir = str(pathlib.Path(__file__).parent.resolve())
+APP_DIR = _app_settings.APP_DIR
+CONFIG_DIR = _app_settings.CONFIG_DIR
+STATIC_DIR = _app_settings.STATIC_DIR
 
 schedules = scheduler_settings.SchedulerSettings()
-secrets = app_settings.AppSecrets()
-settings = app_settings.AppSettings()
+secrets = _app_settings.AppSecrets()
+settings = _app_settings.AppSettings()
 
-expired_media_settings = app_settings.ExpiredMediaSettings()
+
+expired_media_settings = _app_settings.ExpiredMediaSettings()
 
 app = FastAPI(title=settings.app_title, version=settings.app_version)
-app.mount("/static", StaticFiles(directory=os.path.join(current_dir, "static")), name="static")
+app.mount("/static", StaticFiles(directory=_app_settings.STATIC_DIR), name="static")
 
 
 ### Route Setup ###

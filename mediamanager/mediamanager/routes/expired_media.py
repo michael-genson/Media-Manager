@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 from json import JSONDecodeError
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Path, Query, status
@@ -7,7 +8,7 @@ from httpx import HTTPError
 from pydantic import ValidationError
 
 from .. import security
-from ..app import expired_media_settings, schedules, secrets, settings
+from ..app import CONFIG_DIR, expired_media_settings, schedules, secrets, settings
 from ..models.email import ExpiredMediaEmail, ExpiredMediaEmailFailure
 from ..models.expired_media import (
     ExpiredMedia,
@@ -112,9 +113,10 @@ async def send_notification_of_expired_media(background_tasks: BackgroundTasks) 
     background_tasks.add_task(_send_notification_of_expired_media)
 
 
-def _load_expired_media(filepath: str) -> ExpiredMediaIgnoredItems:
+def _load_expired_media(filename: str) -> ExpiredMediaIgnoredItems:
     try:
-        return ExpiredMediaIgnoredItems.parse_file(filepath)
+        fp = os.path.join(CONFIG_DIR, filename)
+        return ExpiredMediaIgnoredItems.parse_file(fp)
     except FileNotFoundError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="expired media ignore list not found on this server"
@@ -128,7 +130,7 @@ def _load_expired_media(filepath: str) -> ExpiredMediaIgnoredItems:
 
 @router.get("/ignore-list", response_model=ExpiredMediaIgnoredItems)
 async def get_ignore_list() -> ExpiredMediaIgnoredItems:
-    return _load_expired_media(expired_media_settings.expired_media_ignore_filepath)
+    return _load_expired_media(expired_media_settings.expired_media_ignore_file)
 
 
 async def _process_expired_media_ignored_item(
@@ -144,7 +146,7 @@ async def _process_expired_media_ignored_item(
 
 @router.post("/ignore-list/bulk", status_code=status.HTTP_201_CREATED)
 async def add_ignored_media_bulk(media: list[ExpiredMediaIgnoredItemIn]) -> None:
-    ignored_items = _load_expired_media(expired_media_settings.expired_media_ignore_filepath)
+    ignored_items = _load_expired_media(expired_media_settings.expired_media_ignore_file)
     existing_items = set(item.rating_key for item in ignored_items.items)
 
     svcs = ServiceFactory()
@@ -155,7 +157,8 @@ async def add_ignored_media_bulk(media: list[ExpiredMediaIgnoredItemIn]) -> None
     ]
     ignored_items.items.extend(await asyncio.gather(*items_to_add_futures))
 
-    with open(expired_media_settings.expired_media_ignore_filepath, "w") as f:
+    fp = os.path.join(CONFIG_DIR, expired_media_settings.expired_media_ignore_file)
+    with open(fp, "w") as f:
         json.dump(ignored_items.dict(), f, indent=2)
 
 
@@ -166,10 +169,11 @@ async def add_ignored_media(media: ExpiredMediaIgnoredItemIn = Depends()) -> Non
 
 @router.delete("/ignore-list/bulk", status_code=status.HTTP_200_OK)
 def delete_ignored_media_bulk(rating_keys: list[str]) -> None:
-    ignored_items = _load_expired_media(expired_media_settings.expired_media_ignore_filepath)
+    ignored_items = _load_expired_media(expired_media_settings.expired_media_ignore_file)
     ignored_items.items[:] = [item for item in ignored_items.items if item.rating_key not in rating_keys]
 
-    with open(expired_media_settings.expired_media_ignore_filepath, "w") as f:
+    fp = os.path.join(CONFIG_DIR, expired_media_settings.expired_media_ignore_file)
+    with open(fp, "w") as f:
         json.dump(ignored_items.dict(), f, indent=2)
 
 
@@ -182,10 +186,11 @@ def delete_ignored_media(rating_key: str = Path(..., alias="ratingKey")) -> None
 def remove_expired_ignored_items() -> ExpiredMediaIgnoredItems:
     """Removes all expired ignored items and returns the updated list"""
 
-    ignored_items = _load_expired_media(expired_media_settings.expired_media_ignore_filepath)
+    ignored_items = _load_expired_media(expired_media_settings.expired_media_ignore_file)
     ignored_items.items[:] = [item for item in ignored_items.items if not item.is_expired]
 
-    with open(expired_media_settings.expired_media_ignore_filepath, "w") as f:
+    fp = os.path.join(CONFIG_DIR, expired_media_settings.expired_media_ignore_file)
+    with open(fp, "w") as f:
         json.dump(ignored_items.dict(), f, indent=2)
 
     return ignored_items

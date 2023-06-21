@@ -1,9 +1,15 @@
+import os
+import pathlib
 from typing import TypeVar
 
 from pydantic import BaseSettings, validator
 from pydantic.fields import ModelField
 
 T = TypeVar("T")
+
+APP_DIR = str(pathlib.Path(__file__).parent.parent.resolve())
+CONFIG_DIR = "/config"
+STATIC_DIR = os.path.join(APP_DIR, "static")
 
 
 class AppSecrets(BaseSettings):
@@ -65,7 +71,7 @@ class ExpiredMediaSettings(BaseSettings):
     """How old media must be before it can be considered expired, in days"""
     expired_media_last_watched_threshold: int = 90
     """The threshold of when media is considered expired, in days"""
-    expired_media_ignore_filepath: str = "/config/expired_media_ignore.json"
+    expired_media_ignore_file: str = "expired_media_ignore.json"
     """The expiration blacklist JSON config filepath"""
 
     @validator("expired_media_min_age", "expired_media_last_watched_threshold")
