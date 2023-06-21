@@ -114,6 +114,7 @@ async def send_notification_of_expired_media(background_tasks: BackgroundTasks) 
 
 
 def _load_expired_media(filename: str) -> ExpiredMediaIgnoredItems:
+    # TODO: loading expired media should automatically remove expired ignore items
     try:
         fp = os.path.join(CONFIG_DIR, filename)
         return ExpiredMediaIgnoredItems.parse_file(fp)
@@ -182,7 +183,9 @@ def delete_ignored_media(rating_key: str = Path(..., alias="ratingKey")) -> None
     return delete_ignored_media_bulk([rating_key])
 
 
-@router.delete("/ignore-list/expired", response_model=ExpiredMediaIgnoredItems)
+@router.delete(
+    "/ignore-list/expired", response_model=ExpiredMediaIgnoredItems
+)  # TODO: deprecate this and do it automatically
 def remove_expired_ignored_items() -> ExpiredMediaIgnoredItems:
     """Removes all expired ignored items and returns the updated list"""
 

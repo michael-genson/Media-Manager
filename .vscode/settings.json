@@ -42,10 +42,14 @@
   "cSpell.words": [
     "mediamanager",
     "Ombi",
-    "Tautulli"
+    "radarr",
+    "sonarr",
+    "Tautulli",
+    "tmdb",
+    "tvdb"
   ],
   "python.testing.pytestArgs": [
-    "--cov=src/",
+    "--cov=mediamanager",
     "tests/"
   ],
   "python.testing.unittestEnabled": false,
