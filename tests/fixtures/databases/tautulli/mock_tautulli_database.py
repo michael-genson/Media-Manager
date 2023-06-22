@@ -1,5 +1,5 @@
 from typing import Any
-from mediamanager.mediamanager.models.tautulli import OrderDirection
+from mediamanager.mediamanager.models.tautulli import OrderDirection, TautulliMedia
 from ...clients.mock_http_client import HTTPMethod
 from .._base import BaseMockDatabase
 
@@ -25,6 +25,11 @@ class TautulliMockDatabase(BaseMockDatabase):
             data = data[:length]
 
         return data
+
+    def insert_media(self, media: TautulliMedia) -> None:
+        self._insert(self.LIBRARIES, media.library.section_id, media.library.dict())
+        self._insert(self.SUMMARIES, media.media_summary.rating_key, media.media_summary.dict())
+        self._insert(self.DETAILS, media.media_detail.rating_key, media.media_detail.dict())
 
     def route(
         self,

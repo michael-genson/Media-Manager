@@ -1,3 +1,4 @@
+from tests.fixtures.clients.mock_http_client import MockHTTPClient
 from tests.utils.generators import random_datetime, random_int, random_string
 from .mock_tautulli_database import TautulliMockDatabase
 from mediamanager.mediamanager.clients.tautulli import TautulliClient
@@ -11,6 +12,11 @@ from mediamanager.mediamanager.models.tautulli import (
 import pytest
 
 _mock_tautulli_db = TautulliMockDatabase()
+
+
+@pytest.fixture
+def tautulli_db() -> TautulliMockDatabase:
+    return _mock_tautulli_db
 
 
 @pytest.fixture
@@ -30,9 +36,8 @@ def tautulli_libraries() -> dict[LibraryType, TautulliLibrary]:
 def _populate_media(libraries: dict[LibraryType, TautulliLibrary], library_type: LibraryType) -> list[TautulliMedia]:
     library = libraries[library_type]
     library.count += 10
-    _mock_tautulli_db._insert(_mock_tautulli_db.LIBRARIES, library.section_id, library.dict())
 
-    media: list[TautulliMedia] = []
+    media_list: list[TautulliMedia] = []
     for _ in range(10):
         summary = TautulliMediaSummary(
             section_id=library.section_id,
@@ -50,11 +55,11 @@ def _populate_media(libraries: dict[LibraryType, TautulliLibrary], library_type:
             guids=[f"tmdb://{random_int(1000, 10000)}", f"tvdb://{random_int(1000, 10000)}"],
         )
 
-        _mock_tautulli_db._insert(_mock_tautulli_db.SUMMARIES, summary.rating_key, summary.dict())
-        _mock_tautulli_db._insert(_mock_tautulli_db.DETAILS, detail.rating_key, detail.dict())
-        media.append(TautulliMedia(library=library, media_summary=summary, media_detail=detail))
+        media = TautulliMedia(library=library, media_summary=summary, media_detail=detail)
+        _mock_tautulli_db.insert_media(media)
+        media_list.append(media)
 
-    return media
+    return media_list
 
 
 @pytest.fixture
@@ -73,7 +78,7 @@ def tautulli_shows(tautulli_libraries: dict[LibraryType, TautulliLibrary]) -> li
 @pytest.fixture(scope="session", autouse=True)
 def mock_tautulli_database():
     mp = pytest.MonkeyPatch()
-    mp.setattr(TautulliClient, "client", _mock_tautulli_db)
+    mp.setattr(TautulliClient, "client", MockHTTPClient(_mock_tautulli_db))
     yield
 
 

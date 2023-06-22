@@ -24,6 +24,7 @@ class MockHTTPClient:
 
     async def __aenter__(self, *args, **kwargs):
         self._enabled = True
+        return self
 
     async def __aexit__(self, *args, **kwargs):
         self._enabled = False

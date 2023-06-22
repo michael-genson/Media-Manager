@@ -1,3 +1,4 @@
+from tests.fixtures.clients.mock_http_client import MockHTTPClient
 from .mock_ombi_database import OmbiMockDatabase
 from mediamanager.mediamanager.clients.ombi import OmbiClient
 from mediamanager.mediamanager.models.ombi import OmbiUser
@@ -5,6 +6,11 @@ from tests.utils.generators import random_email, random_string, random_datetime
 import pytest
 
 _mock_ombi_db = OmbiMockDatabase()
+
+
+@pytest.fixture
+def ombi_db() -> OmbiMockDatabase:
+    return _mock_ombi_db
 
 
 @pytest.fixture
@@ -32,7 +38,7 @@ def ombi_users() -> list[OmbiUser]:
 @pytest.fixture(scope="session", autouse=True)
 def mock_ombi_database():
     mp = pytest.MonkeyPatch()
-    mp.setattr(OmbiClient, "client", _mock_ombi_db)
+    mp.setattr(OmbiClient, "client", MockHTTPClient(_mock_ombi_db))
     yield
 
 
