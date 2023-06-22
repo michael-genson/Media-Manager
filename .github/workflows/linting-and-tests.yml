@@ -45,15 +45,15 @@ jobs:
 
       - name: Formatting (Black)
         run: |
-          poetry run black src --check
+          poetry run black mediamanager --check
 
       - name: Lint (Ruff)
         run: |
-          poetry run ruff src
+          poetry run ruff mediamanager
 
       - name: Mypy
         run: |
-          poetry run mypy src
+          poetry run mypy mediamanager
 
       - name: Pytest
         env:

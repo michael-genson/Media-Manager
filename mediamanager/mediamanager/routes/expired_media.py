@@ -1,25 +1,23 @@
 import asyncio
-import json
-from json import JSONDecodeError
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Path, Query, status
 from httpx import HTTPError
-from pydantic import ValidationError
 
 from .. import security
 from ..app import expired_media_settings, schedules, secrets, settings
 from ..models.email import ExpiredMediaEmail, ExpiredMediaEmailFailure
 from ..models.expired_media import (
     ExpiredMedia,
-    ExpiredMediaIgnoredItem,
     ExpiredMediaIgnoredItemIn,
     ExpiredMediaIgnoredItems,
 )
 from ..models.ombi import OmbiUser
 from ..models.tautulli import LibraryType, TautulliMedia
 from ..scheduler import cron, scheduler
+from ..services.expired_media import ExpiredMediaIgnoreListManager
 from ..services.factory import ServiceFactory
 
+_ignore_list_manager = ExpiredMediaIgnoreListManager()
 router = APIRouter(
     prefix="/api/expired-media", tags=["Expired Media"], dependencies=[Depends(security.require_api_key)]
 )
@@ -69,8 +67,8 @@ async def get_expired_media(
 
     svcs = ServiceFactory()
     try:
-        ignored_items = remove_expired_ignored_items()
-    except FileNotFoundError:
+        ignored_items = await _ignore_list_manager.load()
+    except HTTPException:
         ignored_items = None
 
     tautulli_expired_media = await svcs.tautulli.get_all_expired_media(
@@ -112,51 +110,14 @@ async def send_notification_of_expired_media(background_tasks: BackgroundTasks) 
     background_tasks.add_task(_send_notification_of_expired_media)
 
 
-def _load_expired_media(filepath: str) -> ExpiredMediaIgnoredItems:
-    try:
-        return ExpiredMediaIgnoredItems.parse_file(filepath)
-    except FileNotFoundError:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="expired media ignore list not found on this server"
-        )
-    except (JSONDecodeError, ValidationError):
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="expired media ignore list is in an invalid format",
-        )
-
-
 @router.get("/ignore-list", response_model=ExpiredMediaIgnoredItems)
 async def get_ignore_list() -> ExpiredMediaIgnoredItems:
-    return _load_expired_media(expired_media_settings.expired_media_ignore_filepath)
-
-
-async def _process_expired_media_ignored_item(
-    svcs: ServiceFactory, media: ExpiredMediaIgnoredItemIn
-) -> ExpiredMediaIgnoredItem:
-    if media.name:
-        return ExpiredMediaIgnoredItem(**media.dict())
-
-    detail = await svcs.tautulli.get_media_detail(media.rating_key)
-    data = media.dict() | {"name": detail.title}
-    return ExpiredMediaIgnoredItem(**data)
+    return await _ignore_list_manager.load()
 
 
 @router.post("/ignore-list/bulk", status_code=status.HTTP_201_CREATED)
 async def add_ignored_media_bulk(media: list[ExpiredMediaIgnoredItemIn]) -> None:
-    ignored_items = _load_expired_media(expired_media_settings.expired_media_ignore_filepath)
-    existing_items = set(item.rating_key for item in ignored_items.items)
-
-    svcs = ServiceFactory()
-    items_to_add_futures = [
-        _process_expired_media_ignored_item(svcs, new_media)
-        for new_media in media
-        if new_media.rating_key not in existing_items
-    ]
-    ignored_items.items.extend(await asyncio.gather(*items_to_add_futures))
-
-    with open(expired_media_settings.expired_media_ignore_filepath, "w") as f:
-        json.dump(ignored_items.dict(), f, indent=2)
+    await _ignore_list_manager.add(media)
 
 
 @router.post("/ignore-list", status_code=status.HTTP_201_CREATED)
@@ -165,27 +126,10 @@ async def add_ignored_media(media: ExpiredMediaIgnoredItemIn = Depends()) -> Non
 
 
 @router.delete("/ignore-list/bulk", status_code=status.HTTP_200_OK)
-def delete_ignored_media_bulk(rating_keys: list[str]) -> None:
-    ignored_items = _load_expired_media(expired_media_settings.expired_media_ignore_filepath)
-    ignored_items.items[:] = [item for item in ignored_items.items if item.rating_key not in rating_keys]
-
-    with open(expired_media_settings.expired_media_ignore_filepath, "w") as f:
-        json.dump(ignored_items.dict(), f, indent=2)
+async def delete_ignored_media_bulk(rating_keys: list[str]) -> None:
+    await _ignore_list_manager.delete(rating_keys)
 
 
 @router.delete("/ignore-list/{ratingKey}", status_code=status.HTTP_200_OK)
-def delete_ignored_media(rating_key: str = Path(..., alias="ratingKey")) -> None:
-    return delete_ignored_media_bulk([rating_key])
-
-
-@router.delete("/ignore-list/expired", response_model=ExpiredMediaIgnoredItems)
-def remove_expired_ignored_items() -> ExpiredMediaIgnoredItems:
-    """Removes all expired ignored items and returns the updated list"""
-
-    ignored_items = _load_expired_media(expired_media_settings.expired_media_ignore_filepath)
-    ignored_items.items[:] = [item for item in ignored_items.items if not item.is_expired]
-
-    with open(expired_media_settings.expired_media_ignore_filepath, "w") as f:
-        json.dump(ignored_items.dict(), f, indent=2)
-
-    return ignored_items
+async def delete_ignored_media(rating_key: str = Path(..., alias="ratingKey")) -> None:
+    return await delete_ignored_media_bulk([rating_key])

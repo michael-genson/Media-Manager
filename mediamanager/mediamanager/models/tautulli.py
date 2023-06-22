@@ -1,8 +1,8 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from typing import TypeVar
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 T = TypeVar("T")
 
@@ -50,6 +50,16 @@ class TautulliMediaSummary(BaseModel):
 
     added_at: datetime
     last_played: datetime | None = None
+
+    @validator("added_at", "last_played")
+    def validate_timezone(cls, v: datetime | None) -> datetime | None:
+        if v is None:
+            return v
+
+        if v.tzinfo is None or v.tzinfo.utcoffset(v) is None:
+            v = v.replace(tzinfo=UTC)
+
+        return v
 
 
 class TautulliMediaDetail(BaseModel):
