@@ -54,14 +54,14 @@ class ExpiredMediaIgnoreListManager:
 
     async def add(self, media: list[ExpiredMediaIgnoredItemIn]) -> ExpiredMediaIgnoredItems:
         ignored_items = await self._load(save_after_pruning=False)
-        existing_items = set(item.rating_key for item in ignored_items.items)
 
+        # remove items that are going to be added to avoid duplicates
+        rating_keys_to_add = set(item.rating_key for item in media)
+        ignored_items.items[:] = [item for item in ignored_items.items if item.rating_key not in rating_keys_to_add]
+
+        # process items and add them to the items list
         svcs = ServiceFactory()
-        items_to_add_futures = [
-            self._process_expired_media_ignored_item(svcs, new_media)
-            for new_media in media
-            if new_media.rating_key not in existing_items
-        ]
+        items_to_add_futures = [self._process_expired_media_ignored_item(svcs, new_media) for new_media in media]
         ignored_items.items.extend(await asyncio.gather(*items_to_add_futures))
 
         await self._save(ignored_items)
