@@ -11,17 +11,20 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
-      - name: Check out the repo
+      - name: Check out repository
         uses: actions/checkout@v3
 
-      - name: "Update Latest Tag"
+      - name: Bump version
+        uses: ./.github/workflows/bump-version.yml
+
+      - name: Update latest tag
         uses: EndBug/latest-tag@v1.5.1
 
   publish_docker_image:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the repo
+      - name: Check out repository
         uses: actions/checkout@v3
 
       - name: Log in to Docker Hub
