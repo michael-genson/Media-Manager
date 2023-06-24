@@ -49,9 +49,9 @@ class TautulliClient(BaseHTTPClient):
 
         return [TautulliMediaSummary.parse_obj(media) for media in data["response"]["data"]["data"]]
 
-    async def get_library_media_detail(self, rating_key: str) -> TautulliMediaDetail:
+    async def get_library_media_detail(self, rating_key: str) -> TautulliMediaDetail | None:
         async with self.client as client:
             r = await client.get(self.base_url, params=self._request_params("get_metadata", rating_key=rating_key))
             data: dict = self.parse_response_json(r)  # type: ignore
 
-        return TautulliMediaDetail.parse_obj(data["response"]["data"])
+        return TautulliMediaDetail.parse_obj(data["response"]["data"]) if data["response"]["data"] else None

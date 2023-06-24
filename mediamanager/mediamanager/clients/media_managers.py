@@ -33,12 +33,16 @@ class MediaManagerBaseClient(BaseHTTPClient):
         return MediaManagerTag.parse_obj(data)
 
     @abstractmethod
-    async def get_media(self, db_id: str) -> BaseMediaManagerMedia | None:
+    async def get_media_by_db_id(self, db_id: str) -> BaseMediaManagerMedia | None:
+        ...
+
+    @abstractmethod
+    async def delete_media(self, id: str, delete_files: bool = False) -> None:
         ...
 
 
 class RadarrClient(MediaManagerBaseClient):
-    async def get_media(self, db_id: str) -> RadarrMedia | None:
+    async def get_media_by_db_id(self, db_id: str) -> RadarrMedia | None:
         async with self.client as client:
             r = await client.get(self._url("/movie"), params={"tmdbId": db_id})
             data = self.parse_response_json(r)
@@ -49,9 +53,14 @@ class RadarrClient(MediaManagerBaseClient):
 
         return RadarrMedia.parse_obj(data[0])
 
+    async def delete_media(self, id: str, delete_files: bool = False) -> None:
+        async with self.client as client:
+            r = await client.delete(self._url(f"/movie/{id}"), params={"deleteFiles": delete_files})
+            r.raise_for_status()
+
 
 class SonarrClient(MediaManagerBaseClient):
-    async def get_media(self, db_id: str) -> SonarrMedia | None:
+    async def get_media_by_db_id(self, db_id: str) -> SonarrMedia | None:
         async with self.client as client:
             r = await client.get(self._url("/series"), params={"tvdbId": db_id})
             data = self.parse_response_json(r)
@@ -61,3 +70,8 @@ class SonarrClient(MediaManagerBaseClient):
             return None
 
         return SonarrMedia.parse_obj(data[0])
+
+    async def delete_media(self, id: str, delete_files: bool = False) -> None:
+        async with self.client as client:
+            r = await client.delete(self._url(f"/series/{id}"), params={"deleteFiles": delete_files})
+            r.raise_for_status()

@@ -23,12 +23,16 @@ class BaseMediaManagerMedia(BaseModel):
 
 
 class RadarrMedia(BaseMediaManagerMedia):
+    db_id: str = Field(..., alias="tmdbId")
+
     @property
     def db_url(self) -> str:
         return f"https://www.themoviedb.org/movie/{self.db_id}"
 
 
 class SonarrMedia(BaseMediaManagerMedia):
+    db_id: str = Field(..., alias="tvdbId")
+
     @property
     def db_url(self) -> str:
         return f"https://www.thetvdb.com/dereferrer/series/{self.db_id}"

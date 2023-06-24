@@ -34,11 +34,14 @@ class MediaManagerServiceBase(ABC):
     def _get_client(cls, *args, **kwargs) -> MediaManagerBaseClient:
         ...
 
-    async def get_media(self, media_db_id: str) -> BaseMediaManagerMedia | None:
+    async def get_media_by_db_id(self, media_db_id: str) -> BaseMediaManagerMedia | None:
         if media_db_id not in self._media_by_db_id:
-            self._media_by_db_id[media_db_id] = await self._client.get_media(media_db_id)
+            self._media_by_db_id[media_db_id] = await self._client.get_media_by_db_id(media_db_id)
 
         return self._media_by_db_id[media_db_id]
+
+    async def delete_media(self, id: str, delete_files: bool = False) -> None:
+        return await self._client.delete_media(id, delete_files=delete_files)
 
     async def _get_tag(self, tag_id: str) -> MediaManagerTag | None:
         if tag_id not in self._tags_by_id:
@@ -53,7 +56,7 @@ class MediaManagerServiceBase(ABC):
         :param str media_db_id: The database id of the media (e.g. TMDB movie id)
         """
 
-        media = await self.get_media(media_db_id)
+        media = await self.get_media_by_db_id(media_db_id)
         if not media or not media.tag_ids:
             return []
 
@@ -61,7 +64,7 @@ class MediaManagerServiceBase(ABC):
         return [tag for tag in await asyncio.gather(*tag_futures) if tag]
 
     async def get_url_for_media(self, media_db_id: str) -> str | None:
-        media = await self.get_media(media_db_id)
+        media = await self.get_media_by_db_id(media_db_id)
         return media.db_url if media else None
 
 

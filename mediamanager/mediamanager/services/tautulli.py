@@ -19,7 +19,7 @@ class TautulliService:
         self._client = self._get_client(base_url, api_key)
         self._all_libraries: list[TautulliLibrary] | None = None
         """Internal cache for all libraries"""
-        self._media_detail_by_rating_key: dict[str, TautulliMediaDetail] = {}
+        self._media_detail_by_rating_key: dict[str, TautulliMediaDetail | None] = {}
         """Internal cache for media details by rating key"""
 
     @classmethod

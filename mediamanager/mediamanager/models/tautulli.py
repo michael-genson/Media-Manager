@@ -92,3 +92,7 @@ class TautulliMedia(BaseModel):
     library: TautulliLibrary
     media_summary: TautulliMediaSummary
     media_detail: TautulliMediaDetail
+
+
+class TautulliFailedDeletedMedia(BaseModel):
+    items: list[TautulliMediaDetail]
