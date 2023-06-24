@@ -1,5 +1,4 @@
 from abc import abstractproperty, abstractmethod
-from humps.main import camelize
 
 from mediamanager.mediamanager.models.media_managers import (
     BaseMediaManagerMedia,
@@ -37,9 +36,9 @@ class MediaManagerMockDatabaseBase(BaseMockDatabase):
     ):
         if url.endswith(f"/{self._base_endpoint}") and method == HTTPMethod.GET:
             all_records = self._get_all(self.MEDIA)
-            db_id: str = (params or {})[camelize(self._media_param)]
+            db_id: str = (params or {})[self._media_param]
             for record in all_records:
-                if record[self._media_param] == db_id:
+                if record["db_id"] == db_id:
                     return self._200([record])
 
             return self._200([])
@@ -66,7 +65,7 @@ class RadarrMockDatabase(MediaManagerMockDatabaseBase):
 
     @property
     def _media_param(self) -> str:
-        return "tmdb_id"
+        return "tmdbId"
 
     def create_media(self, db_id: str, tag_ids: list[str] | None = None) -> RadarrMedia:
         if tag_ids is None:
@@ -78,7 +77,7 @@ class RadarrMockDatabase(MediaManagerMockDatabaseBase):
             tags=tag_ids,
             path=random_string(),
             root_folder_path=random_string(),
-            tmdb_id=db_id,
+            db_id=db_id,
         )
         self._insert(self.MEDIA, media.id, media.dict())
         return media
@@ -91,7 +90,7 @@ class SonarrMockDatabase(MediaManagerMockDatabaseBase):
 
     @property
     def _media_param(self) -> str:
-        return "tvdb_id"
+        return "tvdbId"
 
     def create_media(self, db_id: str, tag_ids: list[str] | None = None) -> SonarrMedia:
         if tag_ids is None:
@@ -103,7 +102,7 @@ class SonarrMockDatabase(MediaManagerMockDatabaseBase):
             tags=tag_ids,
             path=random_string(),
             root_folder_path=random_string(),
-            tvdb_id=db_id,
+            db_id=db_id,
         )
         self._insert(self.MEDIA, media.id, media.dict())
         return media

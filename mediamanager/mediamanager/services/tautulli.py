@@ -6,7 +6,6 @@ from httpx import HTTPError
 
 from ..clients.tautulli import TautulliClient
 from ..models.tautulli import (
-    LibraryType,
     OrderDirection,
     TautulliLibrary,
     TautulliMedia,
@@ -91,8 +90,6 @@ class TautulliService:
         expired_media_futures: list[Awaitable[TautulliMedia | None]] = []
         for library in self._all_libraries:
             if not library.is_active:
-                continue
-            if library.section_type is LibraryType.unknown:
                 continue
             if not library.count:
                 continue

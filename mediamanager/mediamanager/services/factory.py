@@ -1,4 +1,5 @@
 from ..app import secrets
+from ..models.tautulli import LibraryType
 from . import data_exporter, media_managers, ombi, smtp, tautulli
 
 
@@ -55,3 +56,11 @@ class ServiceFactory:
             )
 
         return self._smtp
+
+    def get_media_manager_service(self, library_type: LibraryType) -> media_managers.MediaManagerServiceBase | None:
+        if library_type is LibraryType.movie:
+            return self.radarr
+        elif library_type is LibraryType.show:
+            return self.sonarr
+        else:
+            return None
