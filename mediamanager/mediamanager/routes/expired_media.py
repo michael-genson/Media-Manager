@@ -1,7 +1,6 @@
 import asyncio
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Path, Query, status
-from httpx import HTTPError
 
 from .. import security
 from ..app import expired_media_settings, schedules, secrets, settings
@@ -12,7 +11,7 @@ from ..models.expired_media import (
     ExpiredMediaIgnoredItems,
 )
 from ..models.ombi import OmbiUser
-from ..models.tautulli import LibraryType, TautulliMedia
+from ..models.tautulli import TautulliMedia
 from ..scheduler import cron, scheduler
 from ..services.expired_media import ExpiredMediaIgnoreListManager
 from ..services.factory import ServiceFactory
@@ -25,15 +24,11 @@ router = APIRouter(
 
 async def _get_expired_media(svcs: ServiceFactory, media: TautulliMedia) -> ExpiredMedia:
     try:
-        if media.library.section_type is LibraryType.movie:
-            media_manager_service = svcs.radarr
-            db_id = media.media_detail.tmdb_guid
-        elif media.library.section_type is LibraryType.show:
-            media_manager_service = svcs.sonarr
-            db_id = media.media_detail.tvdb_guid
-        else:
+        media_manager_service = svcs.get_media_manager_service(media.library.section_type)
+        if not media_manager_service:
             return ExpiredMedia(media=media)
 
+        db_id = media.media_detail.get_guid(media_manager_service.guid_name)
         if not db_id:
             return ExpiredMedia(media=media)
 
@@ -47,7 +42,7 @@ async def _get_expired_media(svcs: ServiceFactory, media: TautulliMedia) -> Expi
 
         media_url = await media_manager_service.get_url_for_media(db_id)
         return ExpiredMedia(media=media, media_url=media_url, user=user)
-    except HTTPError:
+    except HTTPException:
         # the media is the only required data, so we ignore http errors such as connection issues and timeouts
         return ExpiredMedia(media=media)
 

@@ -68,18 +68,11 @@ class TautulliMediaDetail(BaseModel):
     rating_key: str
     """The unique id of the media"""
 
+    media_type: LibraryType
     title: str
     guids: list[str] | None = None
 
-    @property
-    def tmdb_guid(self):
-        return self._parse_guid("tmdb")
-
-    @property
-    def tvdb_guid(self):
-        return self._parse_guid("tvdb")
-
-    def _parse_guid(self, prefix: str) -> str | None:
+    def get_guid(self, prefix: str) -> str | None:
         if not self.guids:
             return None
 
@@ -99,3 +92,9 @@ class TautulliMedia(BaseModel):
     library: TautulliLibrary
     media_summary: TautulliMediaSummary
     media_detail: TautulliMediaDetail
+
+
+class TautulliFailedDeletedMedia(BaseModel):
+    """Map of rating key to detail, when available"""
+
+    failed_items: dict[str, TautulliMediaDetail | None]

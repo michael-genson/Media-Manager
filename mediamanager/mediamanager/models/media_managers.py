@@ -10,6 +10,7 @@ class BaseMediaManagerMedia(BaseModel):
         allow_population_by_field_name = True
 
     id: str
+    db_id: str
 
     title: str
     tag_ids: list[str] | None = Field(None, alias="tags")
@@ -22,19 +23,19 @@ class BaseMediaManagerMedia(BaseModel):
 
 
 class RadarrMedia(BaseMediaManagerMedia):
-    tmdb_id: str
+    db_id: str = Field(..., alias="tmdbId")
 
     @property
     def db_url(self) -> str:
-        return f"https://www.themoviedb.org/movie/{self.tmdb_id}"
+        return f"https://www.themoviedb.org/movie/{self.db_id}"
 
 
 class SonarrMedia(BaseMediaManagerMedia):
-    tvdb_id: str
+    db_id: str = Field(..., alias="tvdbId")
 
     @property
     def db_url(self) -> str:
-        return f"https://www.thetvdb.com/dereferrer/series/{self.tvdb_id}"
+        return f"https://www.thetvdb.com/dereferrer/series/{self.db_id}"
 
 
 class MediaManagerTag(BaseModel):

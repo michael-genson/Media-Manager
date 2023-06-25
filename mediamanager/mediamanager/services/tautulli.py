@@ -2,11 +2,10 @@ import asyncio
 from datetime import UTC, datetime
 from typing import Awaitable
 
-from httpx import HTTPError
+from fastapi import HTTPException
 
 from ..clients.tautulli import TautulliClient
 from ..models.tautulli import (
-    LibraryType,
     OrderDirection,
     TautulliLibrary,
     TautulliMedia,
@@ -20,7 +19,7 @@ class TautulliService:
         self._client = self._get_client(base_url, api_key)
         self._all_libraries: list[TautulliLibrary] | None = None
         """Internal cache for all libraries"""
-        self._media_detail_by_rating_key: dict[str, TautulliMediaDetail] = {}
+        self._media_detail_by_rating_key: dict[str, TautulliMediaDetail | None] = {}
         """Internal cache for media details by rating key"""
 
     @classmethod
@@ -46,7 +45,7 @@ class TautulliService:
         try:
             if rating_key not in self._media_detail_by_rating_key:
                 self._media_detail_by_rating_key[rating_key] = await self._client.get_library_media_detail(rating_key)
-        except HTTPError:
+        except HTTPException:
             if ignore_http_errors:
                 return None
             else:
@@ -91,8 +90,6 @@ class TautulliService:
         expired_media_futures: list[Awaitable[TautulliMedia | None]] = []
         for library in self._all_libraries:
             if not library.is_active:
-                continue
-            if library.section_type is LibraryType.unknown:
                 continue
             if not library.count:
                 continue

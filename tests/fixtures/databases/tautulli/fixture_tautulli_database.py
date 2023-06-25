@@ -51,6 +51,7 @@ def _populate_media(libraries: dict[LibraryType, TautulliLibrary], library_type:
         detail = TautulliMediaDetail(
             section_id=library.section_id,
             rating_key=summary.rating_key,
+            media_type=library_type,
             title=summary.title,
             guids=[f"tmdb://{random_int(1000, 10000)}", f"tvdb://{random_int(1000, 10000)}"],
         )

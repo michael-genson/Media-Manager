@@ -63,6 +63,7 @@ def test_get_expired_media(
                 detail = TautulliMediaDetail(
                     section_id=library.section_id,
                     rating_key=summary.rating_key,
+                    media_type=LibraryType.movie,
                     title=summary.title,
                     guids=[f"tmdb://{random_int(1000, 10000)}", f"tvdb://{random_int(1000, 10000)}"],
                 )
@@ -112,7 +113,7 @@ def test_get_expired_media_with_media(
         tag_ids.append(tag.id)
 
     movie = random.choice(tautulli_movies)
-    radarr_db.create_media(movie.media_detail.tmdb_guid, tag_ids)
+    radarr_db.create_media(movie.media_detail.get_guid("tmdb"), tag_ids)  # type: ignore
 
     with freeze_time(datetime.now() + timedelta(days=random_int(365 * 10, 365 * 20))):
         response = api_client.get(
