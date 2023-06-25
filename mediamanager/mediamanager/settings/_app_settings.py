@@ -45,7 +45,7 @@ class AppSecrets(BaseSettings):
 
 class AppSettings(BaseSettings):
     app_title = "MediaManager"
-    app_version = "0.1.0"
+    app_version = "0.1.1"
 
     admin_email: str = ""  # required
     """The admin email address to receive notifications"""
