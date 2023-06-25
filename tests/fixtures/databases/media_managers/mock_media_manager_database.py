@@ -40,8 +40,11 @@ class MediaManagerMockDatabaseBase(BaseMockDatabase):
             for record in all_records:
                 if record["db_id"] == db_id:
                     return self._200([record])
-
-            return self._200([])
+            return self._404()
+        elif f"/{self._base_endpoint}/" in url and method == HTTPMethod.DELETE:
+            media_id = url.rsplit("/", maxsplit=1)[-1]
+            self._delete(self.MEDIA, media_id)
+            return self._200()
         elif "/tag/" in url and method == HTTPMethod.GET:
             tag_id = url.rsplit("/", maxsplit=1)[-1]
             return self._200(self._get(self.TAGS, tag_id))
@@ -77,7 +80,7 @@ class RadarrMockDatabase(MediaManagerMockDatabaseBase):
             tags=tag_ids,
             path=random_string(),
             root_folder_path=random_string(),
-            db_id=db_id,
+            tmdbId=db_id,
         )
         self._insert(self.MEDIA, media.id, media.dict())
         return media
@@ -102,7 +105,7 @@ class SonarrMockDatabase(MediaManagerMockDatabaseBase):
             tags=tag_ids,
             path=random_string(),
             root_folder_path=random_string(),
-            db_id=db_id,
+            tvdbId=db_id,
         )
         self._insert(self.MEDIA, media.id, media.dict())
         return media
