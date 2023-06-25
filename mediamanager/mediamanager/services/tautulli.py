@@ -2,7 +2,7 @@ import asyncio
 from datetime import UTC, datetime
 from typing import Awaitable
 
-from httpx import HTTPError
+from fastapi import HTTPException
 
 from ..clients.tautulli import TautulliClient
 from ..models.tautulli import (
@@ -45,7 +45,7 @@ class TautulliService:
         try:
             if rating_key not in self._media_detail_by_rating_key:
                 self._media_detail_by_rating_key[rating_key] = await self._client.get_library_media_detail(rating_key)
-        except HTTPError:
+        except HTTPException:
             if ignore_http_errors:
                 return None
             else:

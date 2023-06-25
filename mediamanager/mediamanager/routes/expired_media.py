@@ -1,7 +1,6 @@
 import asyncio
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Path, Query, status
-from httpx import HTTPError
 
 from .. import security
 from ..app import expired_media_settings, schedules, secrets, settings
@@ -43,7 +42,7 @@ async def _get_expired_media(svcs: ServiceFactory, media: TautulliMedia) -> Expi
 
         media_url = await media_manager_service.get_url_for_media(db_id)
         return ExpiredMedia(media=media, media_url=media_url, user=user)
-    except HTTPError:
+    except HTTPException:
         # the media is the only required data, so we ignore http errors such as connection issues and timeouts
         return ExpiredMedia(media=media)
 

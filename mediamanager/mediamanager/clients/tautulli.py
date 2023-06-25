@@ -54,4 +54,5 @@ class TautulliClient(BaseHTTPClient):
             r = await client.get(self.base_url, params=self._request_params("get_metadata", rating_key=rating_key))
             data: dict = self.parse_response_json(r)  # type: ignore
 
-        return TautulliMediaDetail.parse_obj(data["response"]["data"]) if data["response"]["data"] else None
+        media_data = data["response"]["data"]
+        return TautulliMediaDetail.parse_obj(media_data) if media_data else None

@@ -95,4 +95,6 @@ class TautulliMedia(BaseModel):
 
 
 class TautulliFailedDeletedMedia(BaseModel):
-    items: list[TautulliMediaDetail]
+    """Map of rating key to detail, when available"""
+
+    failed_items: dict[str, TautulliMediaDetail | None]

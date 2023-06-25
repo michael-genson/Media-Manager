@@ -46,7 +46,7 @@ async def _remove_media(svcs: ServiceFactory, rating_key: str) -> None:
         raise RemoveMediaException(rating_key) from e
 
 
-@router.delete("/remove/bulk", response_model=TautulliFailedDeletedMedia)
+@router.post("/remove/bulk", response_model=TautulliFailedDeletedMedia)
 async def remove_media_bulk(rating_keys: list[str] = Body(..., alias="ratingKeys")) -> TautulliFailedDeletedMedia:
     """Removes media from all systems. If media is unable to be removed, it's returned in the response body"""
 
@@ -55,8 +55,13 @@ async def remove_media_bulk(rating_keys: list[str] = Body(..., alias="ratingKeys
         *[_remove_media(svcs, rating_key) for rating_key in rating_keys], return_exceptions=True
     )
 
-    failed_details = [await svcs.tautulli.get_media_detail(ex.rating_key) for ex in results if ex is not None]
-    return TautulliFailedDeletedMedia(items=[detail for detail in failed_details if detail])
+    failures: list[RemoveMediaException] = [ex for ex in results if ex is not None]
+    return TautulliFailedDeletedMedia(
+        failed_items={
+            failure.rating_key: await svcs.tautulli.get_media_detail(failure.rating_key, ignore_http_errors=True)
+            for failure in failures
+        }
+    )
 
 
 @router.delete("/remove/{ratingKey}", status_code=status.HTTP_200_OK)
