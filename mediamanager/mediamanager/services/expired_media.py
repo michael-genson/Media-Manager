@@ -46,11 +46,10 @@ class ExpiredMediaIgnoreListManager:
         self, svcs: ServiceFactory, media: ExpiredMediaIgnoredItemIn
     ) -> ExpiredMediaIgnoredItem:
         if media.name:
-            return ExpiredMediaIgnoredItem(**media.dict())
+            return media.cast(ExpiredMediaIgnoredItem)
 
         detail = await svcs.tautulli.get_media_detail(media.rating_key)
-        data = media.dict() | {"name": detail.title}
-        return ExpiredMediaIgnoredItem(**data)
+        return media.cast(ExpiredMediaIgnoredItem, name=detail.title)
 
     async def add(self, media: list[ExpiredMediaIgnoredItemIn]) -> ExpiredMediaIgnoredItems:
         ignored_items = await self._load(save_after_pruning=False)
