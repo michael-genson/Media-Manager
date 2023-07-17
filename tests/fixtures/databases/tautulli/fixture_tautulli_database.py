@@ -1,15 +1,17 @@
-from tests.fixtures.clients.mock_http_client import MockHTTPClient
-from tests.utils.generators import random_datetime, random_int, random_string
-from .mock_tautulli_database import TautulliMockDatabase
+import pytest
+
 from mediamanager.mediamanager.clients.tautulli import TautulliClient
 from mediamanager.mediamanager.models.tautulli import (
-    TautulliLibrary,
     LibraryType,
+    TautulliLibrary,
     TautulliMedia,
     TautulliMediaDetail,
     TautulliMediaSummary,
 )
-import pytest
+from tests.fixtures.clients.mock_http_client import MockHTTPClient
+from tests.utils.generators import random_datetime, random_int, random_string
+
+from .mock_tautulli_database import TautulliMockDatabase
 
 _mock_tautulli_db = TautulliMockDatabase()
 

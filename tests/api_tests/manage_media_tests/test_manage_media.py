@@ -1,10 +1,11 @@
 import random
+
 from fastapi.testclient import TestClient
+
 from mediamanager.mediamanager.app import secrets
 from mediamanager.mediamanager.models.tautulli import TautulliMedia
 from mediamanager.mediamanager.routes import manage_media
 from mediamanager.mediamanager.security import API_KEY_HEADER_NAME
-
 from tests.fixtures.databases.media_managers.mock_media_manager_database import RadarrMockDatabase
 from tests.utils.generators import random_int, random_string
 

@@ -1,9 +1,11 @@
-from tests.fixtures.clients.mock_http_client import MockHTTPClient
-from tests.utils.generators import random_int, random_string
-from .mock_media_manager_database import RadarrMockDatabase, SonarrMockDatabase
+import pytest
+
 from mediamanager.mediamanager.clients.media_managers import RadarrClient, SonarrClient
 from mediamanager.mediamanager.models.media_managers import MediaManagerTag, RadarrMedia, SonarrMedia
-import pytest
+from tests.fixtures.clients.mock_http_client import MockHTTPClient
+from tests.utils.generators import random_int, random_string
+
+from .mock_media_manager_database import RadarrMockDatabase, SonarrMockDatabase
 
 _mock_radarr_db = RadarrMockDatabase()
 _mock_sonarr_db = SonarrMockDatabase()

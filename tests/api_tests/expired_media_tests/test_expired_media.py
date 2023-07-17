@@ -1,14 +1,14 @@
+import random
 from collections import defaultdict
 from datetime import datetime, timedelta
-import random
+
+import pytest
 from fastapi.testclient import TestClient
 from freezegun import freeze_time
-import pytest
+
 from mediamanager.mediamanager.app import expired_media_settings, secrets
-from mediamanager.mediamanager.models.ombi import OmbiUser
-from mediamanager.mediamanager.security import API_KEY_HEADER_NAME
 from mediamanager.mediamanager.models.expired_media import ExpiredMedia
-from mediamanager.mediamanager.routes import expired_media as expired_media_routes
+from mediamanager.mediamanager.models.ombi import OmbiUser
 from mediamanager.mediamanager.models.tautulli import (
     LibraryType,
     TautulliLibrary,
@@ -16,6 +16,8 @@ from mediamanager.mediamanager.models.tautulli import (
     TautulliMediaDetail,
     TautulliMediaSummary,
 )
+from mediamanager.mediamanager.routes import expired_media as expired_media_routes
+from mediamanager.mediamanager.security import API_KEY_HEADER_NAME
 from tests.fixtures.databases.media_managers.mock_media_manager_database import RadarrMockDatabase
 from tests.fixtures.databases.tautulli.mock_tautulli_database import TautulliMockDatabase
 from tests.utils.generators import random_datetime, random_int, random_string

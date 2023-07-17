@@ -1,5 +1,6 @@
 import os
-from .utils.generators import random_string, random_url, random_email
+
+from .utils.generators import random_email, random_string, random_url
 
 
 def load_env() -> None:
@@ -25,13 +26,14 @@ def load_env() -> None:
 
 load_env()
 
-import pytest
-from fastapi.testclient import TestClient
-from pytest import MonkeyPatch
+import pytest  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
+from pytest import MonkeyPatch  # noqa: E402
 
-from mediamanager.mediamanager.services.smtp import SMTPService
-from mediamanager.mediamanager.app import app
-from .fixtures import *
+from mediamanager.mediamanager.app import app  # noqa: E402
+from mediamanager.mediamanager.services.smtp import SMTPService  # noqa: E402
+
+from .fixtures import *  # noqa: E402 F403
 
 
 def do_nothing(*args, **kwargs):

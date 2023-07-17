@@ -1,4 +1,4 @@
-from abc import abstractproperty, abstractmethod
+from abc import abstractmethod, abstractproperty
 
 from mediamanager.mediamanager.models.media_managers import (
     BaseMediaManagerMedia,
@@ -6,9 +6,9 @@ from mediamanager.mediamanager.models.media_managers import (
     RadarrMedia,
     SonarrMedia,
 )
-
 from tests.fixtures.clients.mock_http_client import HTTPMethod
 from tests.utils.generators import random_string
+
 from .._base import BaseMockDatabase
 
 
