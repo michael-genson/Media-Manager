@@ -4,6 +4,8 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from mediamanager.mediamanager.db._model_base import SqlAlchemyBase
+from mediamanager.mediamanager.app import settings
+from mediamanager.mediamanager.db.models import *
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -24,6 +26,9 @@ target_metadata = SqlAlchemyBase.metadata
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+
+# Set DB url from config
+config.set_main_option("sqlalchemy.url", settings.db_url)
 
 
 def run_migrations_offline() -> None:
