@@ -1,12 +1,48 @@
 from typing import TypeVar
 
 from humps.main import camelize
-from pydantic import BaseModel
+from pydantic import BaseModel, root_validator
+from pydantic.fields import ModelField
 
 T = TypeVar("T", bound=BaseModel)
 
 
 class BaseModelMM(BaseModel):
+    _complex_types: list[type] | None = None
+    """
+    List of complex types to convert values into during construction (e.g. a `float` into a `Percent`)
+
+    Complex types must accept a single argument (e.g. `Percent(0.05)`)
+    """
+
+    @classmethod
+    def _get_class_fields(cls, include_aliases: bool = False) -> dict[str, ModelField]:
+        """
+        Returns a dictionary of fieldnames and field definitions,
+        optionally including field aliases as separate keys
+        """
+
+        fields = cls.__fields__
+        if not include_aliases:
+            return fields
+        else:
+            return fields | {field.alias: field for field in fields.values() if field.has_alias}
+
+    @root_validator(pre=True)
+    def _convert_values_into_complex_types(cls, values: dict) -> dict:
+        if not cls._complex_types:
+            return values
+
+        for fieldname, value in values.items():
+            if fieldname not in (class_fields := cls._get_class_fields(True)):
+                continue
+            for complex_type in cls._complex_types:
+                if class_fields[fieldname].type_ != complex_type:
+                    continue
+                values[fieldname] = complex_type(value)
+
+        return values
+
     def cast(self, cls: type[T], **kwargs) -> T:
         """
         Cast the current model to another with additional arguments. Useful for
