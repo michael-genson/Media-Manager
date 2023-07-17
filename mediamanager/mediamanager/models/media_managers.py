@@ -1,14 +1,11 @@
 from abc import abstractproperty
 
-from humps import camelize
-from pydantic import BaseModel, Field
+from pydantic import Field
+
+from ._base import APIBase
 
 
-class BaseMediaManagerMedia(BaseModel):
-    class Config:
-        alias_generator = camelize
-        allow_population_by_field_name = True
-
+class BaseMediaManagerMedia(APIBase):
     id: str
     db_id: str
 
@@ -38,6 +35,6 @@ class SonarrMedia(BaseMediaManagerMedia):
         return f"https://www.thetvdb.com/dereferrer/series/{self.db_id}"
 
 
-class MediaManagerTag(BaseModel):
+class MediaManagerTag(APIBase):
     id: str
     label: str

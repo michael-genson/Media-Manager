@@ -1,14 +1,9 @@
 from datetime import datetime
 
-from humps import camelize
-from pydantic import BaseModel
+from ._base import APIBase
 
 
-class OmbiUser(BaseModel):
-    class Config:
-        alias_generator = camelize
-        allow_population_by_field_name = True
-
+class OmbiUser(APIBase):
     id: str
     user_name: str
     email_address: str

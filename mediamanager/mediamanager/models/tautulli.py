@@ -2,7 +2,9 @@ from datetime import UTC, datetime
 from enum import Enum
 from typing import TypeVar
 
-from pydantic import BaseModel, validator
+from pydantic import validator
+
+from ._base import APIBase
 
 T = TypeVar("T")
 
@@ -23,7 +25,7 @@ class LibraryType(Enum):
         return cls.unknown
 
 
-class TautulliLibrary(BaseModel):
+class TautulliLibrary(APIBase):
     section_id: str
     """The unique id of the library"""
 
@@ -39,7 +41,7 @@ class TautulliLibrary(BaseModel):
     is_active: bool
 
 
-class TautulliMediaSummary(BaseModel):
+class TautulliMediaSummary(APIBase):
     section_id: str
     """The unique id of the parent library"""
     rating_key: str
@@ -62,7 +64,7 @@ class TautulliMediaSummary(BaseModel):
         return v
 
 
-class TautulliMediaDetail(BaseModel):
+class TautulliMediaDetail(APIBase):
     section_id: str
     """The unique id of the parent library"""
     rating_key: str
@@ -88,13 +90,13 @@ class TautulliMediaDetail(BaseModel):
         return None
 
 
-class TautulliMedia(BaseModel):
+class TautulliMedia(APIBase):
     library: TautulliLibrary
     media_summary: TautulliMediaSummary
     media_detail: TautulliMediaDetail
 
 
-class TautulliFailedDeletedMedia(BaseModel):
+class TautulliFailedDeletedMedia(APIBase):
     """Map of rating key to detail, when available"""
 
     failed_items: dict[str, TautulliMediaDetail | None]

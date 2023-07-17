@@ -51,7 +51,7 @@ def test_remove_media_bulk(api_client: TestClient, tautulli_movies: list[Tautull
     )
 
     response.raise_for_status()
-    assert response.json() == {"failed_items": {}}
+    assert response.json() == {"failedItems": {}}
 
     # verify the movie was deleted
     all_radarr_movies = radarr_db._get_all(radarr_db.MEDIA)
@@ -80,7 +80,7 @@ def test_remove_media_bulk(api_client: TestClient, tautulli_movies: list[Tautull
     )
 
     response.raise_for_status()
-    failed_items: dict[str, dict] = response.json()["failed_items"]
+    failed_items: dict[str, dict] = response.json()["failedItems"]
     assert len(failed_items) == 2
     assert invalid_key_1 in failed_items
     assert invalid_key_2 in failed_items

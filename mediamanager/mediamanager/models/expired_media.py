@@ -1,14 +1,13 @@
 import time
 from typing import Any
 
-from pydantic import BaseModel
-
+from ._base import APIBase
 from .data_exporter import Exportable
 from .ombi import OmbiUser
 from .tautulli import TautulliMedia
 
 
-class ExpiredMediaIgnoredItemIn(BaseModel):
+class ExpiredMediaIgnoredItemIn(APIBase):
     rating_key: str
     """The unique id of the media item in Tautulli"""
 
@@ -25,11 +24,11 @@ class ExpiredMediaIgnoredItem(ExpiredMediaIgnoredItemIn):
         return time.time() >= self.ttl if self.ttl else False
 
 
-class ExpiredMediaIgnoredItems(BaseModel):
+class ExpiredMediaIgnoredItems(APIBase):
     items: list[ExpiredMediaIgnoredItem]
 
 
-class ExpiredMedia(BaseModel, Exportable):
+class ExpiredMedia(APIBase, Exportable):
     media: TautulliMedia
     media_url: str | None = None
     user: OmbiUser | None = None
