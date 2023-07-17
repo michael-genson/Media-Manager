@@ -1,11 +1,12 @@
 from ..app import secrets
 from ..models.tautulli import LibraryType
-from . import data_exporter, media_managers, ombi, smtp, tautulli
+from . import data_exporter, media_managers, ombi, qbittorrent, smtp, tautulli
 
 
 class ServiceFactory:
     def __init__(self) -> None:
         self._ombi: ombi.OmbiService | None = None
+        self._qbittorrent: qbittorrent.QBTService | None = None
         self._radarr: media_managers.RadarrService | None = None
         self._sonarr: media_managers.SonarrService | None = None
         self._tautulli: tautulli.TautulliService | None = None
@@ -19,6 +20,15 @@ class ServiceFactory:
             self._ombi = ombi.OmbiService(secrets.ombi_url, secrets.ombi_api_key)
 
         return self._ombi
+
+    @property
+    def qbittorrent(self):
+        if not self._qbittorrent:
+            self._qbittorrent = qbittorrent.QBTService(
+                secrets.qbittorrent_url, secrets.qbittorrent_username, secrets.qbittorrent_password
+            )
+
+        return self._qbittorrent
 
     @property
     def radarr(self):

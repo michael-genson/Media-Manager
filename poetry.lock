@@ -843,6 +843,20 @@ files = [
 six = ">=1.5"
 
 [[package]]
+name = "python-qbittorrent"
+version = "0.4.3"
+description = "Python wrapper for qBittorrent >4.1.x"
+optional = false
+python-versions = "*"
+files = [
+    {file = "python-qbittorrent-0.4.3.tar.gz", hash = "sha256:4e22cf89890628b054a60aa4bd1161a68c2b0fad48ef0886fa4d325e69d3828a"},
+    {file = "python_qbittorrent-0.4.3-py3-none-any.whl", hash = "sha256:dc2583226b69916ab96735537abd7696acc52e02e2d4d7afd10fa976f10d3aaa"},
+]
+
+[package.dependencies]
+requests = "*"
+
+[[package]]
 name = "pyyaml"
 version = "6.0"
 description = "YAML parser and emitter for Python"
@@ -1054,6 +1068,31 @@ anyio = ">=3.4.0,<5"
 full = ["httpx (>=0.22.0)", "itsdangerous", "jinja2", "python-multipart", "pyyaml"]
 
 [[package]]
+name = "types-requests"
+version = "2.31.0.1"
+description = "Typing stubs for requests"
+optional = false
+python-versions = "*"
+files = [
+    {file = "types-requests-2.31.0.1.tar.gz", hash = "sha256:3de667cffa123ce698591de0ad7db034a5317457a596eb0b4944e5a9d9e8d1ac"},
+    {file = "types_requests-2.31.0.1-py3-none-any.whl", hash = "sha256:afb06ef8f25ba83d59a1d424bd7a5a939082f94b94e90ab5e6116bd2559deaa3"},
+]
+
+[package.dependencies]
+types-urllib3 = "*"
+
+[[package]]
+name = "types-urllib3"
+version = "1.26.25.13"
+description = "Typing stubs for urllib3"
+optional = false
+python-versions = "*"
+files = [
+    {file = "types-urllib3-1.26.25.13.tar.gz", hash = "sha256:3300538c9dc11dad32eae4827ac313f5d986b8b21494801f1bf97a1ac6c03ae5"},
+    {file = "types_urllib3-1.26.25.13-py3-none-any.whl", hash = "sha256:5dbd1d2bef14efee43f5318b5d36d805a489f6600252bb53626d4bfafd95e27c"},
+]
+
+[[package]]
 name = "typing-extensions"
 version = "4.6.3"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -1122,4 +1161,4 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "60125db64266164da1fab53a45866f1a795f8517367c6cb9ada63ae4e8b917da"
+content-hash = "773eb4b8ceb69b55728cad62aa0a0f24a1183c1b35fe90ee097cef1408a1a91a"

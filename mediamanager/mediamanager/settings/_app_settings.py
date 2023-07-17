@@ -19,6 +19,10 @@ class AppSecrets(BaseSettings):
     ombi_url: str = ""  # required
     ombi_api_key: str = ""  # required
 
+    qbittorrent_url: str = ""
+    qbittorrent_username: str = "admin"
+    qbittorrent_password: str = "admin"
+
     tautulli_url: str = ""  # required
     tautulli_api_key: str = ""  # required
 
