@@ -8,6 +8,7 @@ from types import FrameType
 import uvicorn
 
 from mediamanager.app import CONFIG_DIR, STATIC_DIR, app, expired_media_settings, settings  # type: ignore
+from mediamanager.db.db_setup import init_db  # type: ignore
 from mediamanager.scheduler import scheduler  # type: ignore
 
 
@@ -32,6 +33,7 @@ def setup():
     """Run server setup tasks"""
 
     _create_missing_json_files()
+    init_db()
 
 
 async def main():

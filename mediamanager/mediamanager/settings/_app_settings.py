@@ -8,23 +8,23 @@ from pydantic.fields import ModelField
 T = TypeVar("T")
 
 APP_DIR = str(pathlib.Path(__file__).parent.parent.resolve())
-CONFIG_DIR = "/config"
+CONFIG_DIR = "/data"
 STATIC_DIR = os.path.join(APP_DIR, "static")
 
 
 class AppSecrets(BaseSettings):
-    app_api_key: str = ""  # required
+    app_api_key: str = ""
 
     ### Media ###
-    ombi_url: str = ""  # required
-    ombi_api_key: str = ""  # required
+    ombi_url: str = ""
+    ombi_api_key: str = ""
 
     qbittorrent_url: str = ""
     qbittorrent_username: str = "admin"
     qbittorrent_password: str = "admin"
 
-    tautulli_url: str = ""  # required
-    tautulli_api_key: str = ""  # required
+    tautulli_url: str = ""
+    tautulli_api_key: str = ""
 
     radarr_url: str = ""
     radarr_api_key: str = ""
@@ -39,35 +39,29 @@ class AppSecrets(BaseSettings):
     smtp_username: str = "my-email@example.com"
     smtp_password: str = ""
 
-    @validator("app_api_key", "ombi_url", "ombi_api_key", "tautulli_url", "tautulli_api_key")
-    def assert_value(cls, v: T, field: ModelField) -> T:
-        if not v:
-            raise ValueError(f"{field.name} must not be empty")
-
-        return v
-
 
 class AppSettings(BaseSettings):
     app_title = "MediaManager"
     app_version = "0.1.1"
 
-    admin_email: str = ""  # required
+    db_file: str = "/data/media_manager.db"
+    default_user_email: str = "changeme@email.com"
+    default_user_password: str = "password"
+
+    admin_email: str = ""
     """The admin email address to receive notifications"""
     monitored_libraries: list[str] | None = None
     """A non-empty list of library names (case-insensitive), or `None`"""
 
     uvicorn_workers: int = 1
 
-    @validator("admin_email")
-    def assert_value(cls, v: T, field: ModelField) -> T:
-        if not v:
-            raise ValueError(f"{field.name} must not be empty")
-
-        return v
-
     @validator("monitored_libraries")
     def monitored_libraries_case_insensitive(cls, v: list[str] | None) -> list[str] | None:
         return [elem.lower() for elem in v] if v else None
+
+    @property
+    def db_url(self):
+        return f"sqlite+pysqlite:///{self.db_file}"
 
 
 class ExpiredMediaSettings(BaseSettings):
