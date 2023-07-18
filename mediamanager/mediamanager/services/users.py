@@ -17,9 +17,6 @@ _pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class UserService:
-    def __init__(self) -> None:
-        pass
-
     @classmethod
     def _sanitize_email(cls, email: str) -> str:
         return email.strip().lower()
@@ -87,16 +84,12 @@ class UserService:
         If the username is taken, raises `UserAlreadyExistsError`
         """
 
-        new_user = UserInDB(email=email, password=_pwd_context.hash(password), is_default_user=is_default_user)
         with session_context() as session:
+            new_user = UserInDB(email=email, password=_pwd_context.hash(password), is_default_user=is_default_user)
             try:
                 session.add(new_user)
                 session.commit()
             except IntegrityError as e:
                 raise UserAlreadyExistsError from e
 
-        user = self.get_authenticated_user(email, password)
-        if not user:
-            raise Exception("User was not created. This should never happen.")
-
-        return user
+            return User.from_orm(new_user)

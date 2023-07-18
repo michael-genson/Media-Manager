@@ -1,10 +1,11 @@
 from ..app import secrets
 from ..models.tautulli import LibraryType
-from . import data_exporter, media_managers, ombi, qbittorrent, smtp, tautulli, users
+from . import app_config, data_exporter, media_managers, ombi, qbittorrent, smtp, tautulli, users
 
 
 class ServiceFactory:
     def __init__(self) -> None:
+        self._app_config: app_config.AppConfigService | None = None
         self._users: users.UserService | None = None
 
         self._ombi: ombi.OmbiService | None = None
@@ -15,6 +16,13 @@ class ServiceFactory:
 
         self._data_exporter: data_exporter.DataExporter | None = None
         self._smtp: smtp.SMTPService | None = None
+
+    @property
+    def app_config(self):
+        if not self._app_config:
+            self._app_config = app_config.AppConfigService()
+
+        return self._app_config
 
     @property
     def users(self):
