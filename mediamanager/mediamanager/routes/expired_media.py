@@ -3,7 +3,7 @@ import asyncio
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Path, Query, status
 
 from .. import security
-from ..app import expired_media_settings, schedules, secrets, settings
+from ..app import expired_media_settings, schedules, settings
 from ..models.email import ExpiredMediaEmail, ExpiredMediaEmailFailure
 from ..models.expired_media import (
     ExpiredMedia,
@@ -91,11 +91,13 @@ async def _send_notification_of_expired_media() -> None:
             return
 
         csv_file = svcs.data_exporter.create_csv([media for media in expired_media])
-        msg = ExpiredMediaEmail().message(secrets.smtp_sender, settings.admin_email, len(expired_media), csv_file)
+        msg = ExpiredMediaEmail().message(
+            svcs.app_config.config.smtp_sender, settings.admin_email, len(expired_media), csv_file
+        )
         svcs.smtp.send(msg)
 
     except Exception:
-        msg = ExpiredMediaEmailFailure().message(secrets.smtp_sender, settings.admin_email)
+        msg = ExpiredMediaEmailFailure().message(svcs.app_config.config.smtp_sender, settings.admin_email)
         svcs.smtp.send(msg)
         raise
 
