@@ -1,9 +1,15 @@
 from datetime import datetime, timedelta
 
 from jose import jwt
+from pydantic import BaseModel
 
 from ...app import secrets
 from .._base import APIBase
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "Bearer"
 
 
 class User(APIBase):

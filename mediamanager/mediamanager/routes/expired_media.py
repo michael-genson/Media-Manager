@@ -18,7 +18,7 @@ from ..services.factory import ServiceFactory
 
 _ignore_list_manager = ExpiredMediaIgnoreListManager()
 router = APIRouter(
-    prefix="/api/expired-media", tags=["Expired Media"], dependencies=[Depends(security.require_api_key)]
+    prefix="/api/expired-media", tags=["Expired Media"], dependencies=[Depends(security.get_current_user)]
 )
 
 

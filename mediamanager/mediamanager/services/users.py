@@ -5,19 +5,15 @@ from sqlalchemy.exc import IntegrityError
 from ..app import secrets
 from ..db.db_setup import session_context
 from ..db.models.users.users import UserInDB
+from ..models.users.exceptions import (
+    InvalidPasswordError,
+    InvalidTokenError,
+    UserAlreadyExistsError,
+    UserDoesntExistError,
+)
 from ..models.users.users import User, _PrivateUser
 
 _pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
-class UserAlreadyExistsError(Exception):
-    def __init__(self):
-        super().__init__("User already exists")
-
-
-class InvalidTokenError(Exception):
-    def __init__(self):
-        super().__init__("Invalid token")
 
 
 class UserService:
@@ -46,10 +42,10 @@ class UserService:
             session.commit()
 
     def authenticate_user(self, user: _PrivateUser, password: str) -> User:
-        """Returns a validated user only if the provided password is correct, otherwise raises `ValueError`"""
+        """Returns a validated user only if the provided password is correct, otherwise raises `InvalidPasswordError`"""
 
         if not _pwd_context.verify(password, user.password):
-            raise ValueError("invalid password")
+            raise InvalidPasswordError()
 
         return user.cast(User)
 
@@ -62,7 +58,7 @@ class UserService:
 
         try:
             return self.authenticate_user(private_user, password)
-        except ValueError:
+        except InvalidPasswordError:
             return None
 
     def get_authenticated_user_from_token(self, token: str) -> User:
@@ -80,7 +76,7 @@ class UserService:
 
         user = self.get_private_user(email)
         if not user:
-            raise ValueError("user does not exist")
+            raise UserDoesntExistError()
 
         return user.cast(User)
 

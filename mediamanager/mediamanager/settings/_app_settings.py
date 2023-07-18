@@ -15,7 +15,6 @@ DEFAULT_SECRET_KEY = "X-UNSAFE-KEY"
 
 
 class AppSecrets(BaseSettings):
-    app_api_key: str = ""
     db_secret_key: str = DEFAULT_SECRET_KEY  # TODO: warn if using
     db_algorithm: str = "HS256"
 
