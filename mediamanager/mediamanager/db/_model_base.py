@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import uuid4
 
 from sqlalchemy import DateTime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -16,3 +17,7 @@ class BaseMixins:
 class SqlAlchemyBase(DeclarativeBase, BaseMixins):
     created_at: Mapped[datetime | None] = mapped_column(DateTime, default=datetime.now, index=True)
     updated_at: Mapped[datetime | None] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now)
+
+    @classmethod
+    def generate_guid(cls) -> str:
+        return str(uuid4())

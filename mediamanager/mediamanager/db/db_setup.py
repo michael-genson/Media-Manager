@@ -84,7 +84,16 @@ def init_db():
             command.upgrade(alembic_cfg, "head")
 
         if new_db:
-            pass  # TODO: create default user
+            try:
+                from ..services.factory import ServiceFactory
+                from ..services.users import UserAlreadyExistsError
+
+                svcs = ServiceFactory()
+                svcs.users.create_user(
+                    settings.default_user_email, settings.default_user_password, is_default_user=True
+                )
+            except UserAlreadyExistsError:
+                pass
 
 
 if __name__ == "__main__":

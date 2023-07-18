@@ -11,9 +11,13 @@ APP_DIR = str(pathlib.Path(__file__).parent.parent.resolve())
 CONFIG_DIR = "/data"
 STATIC_DIR = os.path.join(APP_DIR, "static")
 
+DEFAULT_SECRET_KEY = "X-UNSAFE-KEY"
+
 
 class AppSecrets(BaseSettings):
     app_api_key: str = ""
+    db_secret_key: str = DEFAULT_SECRET_KEY  # TODO: warn if using
+    db_algorithm: str = "HS256"
 
     ### Media ###
     ombi_url: str = ""
