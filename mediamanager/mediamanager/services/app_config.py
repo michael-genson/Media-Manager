@@ -36,7 +36,8 @@ class AppConfigService:
             config_db.update(**kwargs)
             session.commit()
 
-            return AppConfig.from_orm(config_db)
+            self._config = AppConfig.from_orm(config_db)
+            return self._config
 
     def update_config(self, config: AppConfig) -> AppConfig:
         return self.patch_config(**config.dict())

@@ -29,15 +29,6 @@ class UserService:
 
         return _PrivateUser.from_orm(user_in_db) if user_in_db else None
 
-    def delete_user(self, email: str) -> None:
-        with session_context() as session:
-            user_in_db = session.query(UserInDB).filter_by(email=self._sanitize_email(email)).first()
-            if not user_in_db:
-                return
-
-            session.delete(user_in_db)
-            session.commit()
-
     def authenticate_user(self, user: _PrivateUser, password: str) -> User:
         """Returns a validated user only if the provided password is correct, otherwise raises `InvalidPasswordError`"""
 
@@ -85,7 +76,9 @@ class UserService:
         """
 
         with session_context() as session:
-            new_user = UserInDB(email=email, password=_pwd_context.hash(password), is_default_user=is_default_user)
+            new_user = UserInDB(
+                email=self._sanitize_email(email), password=_pwd_context.hash(password), is_default_user=is_default_user
+            )
             try:
                 session.add(new_user)
                 session.commit()
@@ -93,3 +86,12 @@ class UserService:
                 raise UserAlreadyExistsError from e
 
             return User.from_orm(new_user)
+
+    def delete_user(self, email: str) -> None:
+        with session_context() as session:
+            user_in_db = session.query(UserInDB).filter_by(email=self._sanitize_email(email)).first()
+            if not user_in_db:
+                return
+
+            session.delete(user_in_db)
+            session.commit()
