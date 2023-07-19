@@ -6,7 +6,7 @@ import pytest
 from fastapi.testclient import TestClient
 from freezegun import freeze_time
 
-from mediamanager.mediamanager.app import expired_media_settings, secrets
+from mediamanager.mediamanager.app import expired_media_settings
 from mediamanager.mediamanager.models.expired_media import ExpiredMedia
 from mediamanager.mediamanager.models.ombi import OmbiUser
 from mediamanager.mediamanager.models.tautulli import (
@@ -17,7 +17,6 @@ from mediamanager.mediamanager.models.tautulli import (
     TautulliMediaSummary,
 )
 from mediamanager.mediamanager.routes import expired_media as expired_media_routes
-from mediamanager.mediamanager.security import API_KEY_HEADER_NAME
 from tests.fixtures.databases.media_managers.mock_media_manager_database import RadarrMockDatabase
 from tests.fixtures.databases.tautulli.mock_tautulli_database import TautulliMockDatabase
 from tests.utils.generators import random_datetime, random_int, random_string
@@ -34,6 +33,7 @@ from tests.utils.generators import random_datetime, random_int, random_string
 )
 def test_get_expired_media(
     api_client: TestClient,
+    auth_headers: dict,
     recently_added: bool,
     recently_watched: bool,
     tautulli_db: TautulliMockDatabase,
@@ -78,7 +78,7 @@ def test_get_expired_media(
     with freeze_time(mock_current_dt.isoformat()):
         response = api_client.get(
             expired_media_routes.router.url_path_for("get_expired_media"),
-            headers={API_KEY_HEADER_NAME: secrets.app_api_key},
+            headers=auth_headers,
         )
 
     response.raise_for_status()
@@ -103,6 +103,7 @@ def test_get_expired_media(
 def test_get_expired_media_with_media(
     add_user: bool,
     api_client: TestClient,
+    auth_headers: dict,
     tautulli_movies: list[TautulliMedia],
     ombi_users: list[OmbiUser],
     radarr_db: RadarrMockDatabase,
@@ -120,7 +121,7 @@ def test_get_expired_media_with_media(
     with freeze_time(datetime.now() + timedelta(days=random_int(365 * 10, 365 * 20))):
         response = api_client.get(
             expired_media_routes.router.url_path_for("get_expired_media"),
-            headers={API_KEY_HEADER_NAME: secrets.app_api_key},
+            headers=auth_headers,
         )
 
     response.raise_for_status()

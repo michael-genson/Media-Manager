@@ -7,7 +7,7 @@ from ..models.expired_media import ExpiredMediaIgnoredItem, ExpiredMediaIgnoredI
 from .factory import ServiceFactory
 
 
-class ExpiredMediaIgnoreListManager:
+class ExpiredMediaIgnoreListManager:  # TODO: this should be in the database instead of a JSON file
     def __init__(self) -> None:
         self._fp: str | None = None
 

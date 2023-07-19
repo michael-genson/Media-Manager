@@ -35,3 +35,4 @@ class _PrivateUser(User):
     """Used only for verifying passwords"""
 
     password: str
+    """a user's hashed password"""
