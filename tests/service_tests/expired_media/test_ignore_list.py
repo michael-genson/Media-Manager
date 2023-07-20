@@ -1,7 +1,7 @@
 import random
 import time
-from mediamanager.mediamanager.models.expired_media import (
-    ExpiredMediaIgnoredItem,
+
+from mediamanager.mediamanager.models.expired_media.ignored_items import (
     ExpiredMediaIgnoredItemIn,
     ExpiredMediaIgnoredItems,
 )
@@ -13,7 +13,7 @@ async def test_get_ignore_list(
     expired_media_ignore_list_manager: ExpiredMediaIgnoreListManager,
     expired_media_ignored_items: ExpiredMediaIgnoredItems,
 ):
-    assert await expired_media_ignore_list_manager.load() == expired_media_ignored_items
+    assert expired_media_ignore_list_manager.get_all() == expired_media_ignored_items
 
 
 async def test_add_ignored_media(
@@ -28,10 +28,46 @@ async def test_add_ignored_media(
     ]
     await expired_media_ignore_list_manager.add(new_items)
 
-    updated_items = await expired_media_ignore_list_manager.load()
-    assert updated_items.items == expired_media_ignored_items.items + [
-        new_item.cast(ExpiredMediaIgnoredItem) for new_item in new_items
-    ]
+    updated_items_by_rating_key = {item.rating_key: item for item in expired_media_ignore_list_manager.get_all().items}
+    assert len(updated_items_by_rating_key) == len(new_items) + len(expired_media_ignored_items.items)
+    for item in new_items + expired_media_ignored_items.items:
+        updated_item = updated_items_by_rating_key[item.rating_key]
+        updated_item_data = updated_item.dict()
+        for k, v in item.dict().items():
+            if k == "id":
+                continue
+            assert v == updated_item_data[k]
+
+
+async def test_add_duplicate_media(
+    expired_media_ignore_list_manager: ExpiredMediaIgnoreListManager,
+    expired_media_ignored_items: ExpiredMediaIgnoredItems,
+):
+    original_items = expired_media_ignore_list_manager.get_all().items
+
+    new_name = random_string()
+    item_to_duplicate = random.choice(expired_media_ignored_items.items)
+    item_to_duplicate.name = new_name
+    await expired_media_ignore_list_manager.add([item_to_duplicate.cast(ExpiredMediaIgnoredItemIn)])
+
+    # the number of items should not change
+    updated_items = expired_media_ignore_list_manager.get_all().items
+    assert len(updated_items) == len(original_items)
+
+    found = False
+    original_items_by_id = {item.id: item for item in original_items}
+    for item in updated_items:
+        assert item.id in original_items_by_id
+
+        original_item = original_items_by_id[item.id]
+        if item.id != item_to_duplicate.id:
+            assert item == original_item
+        else:
+            # the duplicated item should replace the existing item, but keep the original id
+            found = True
+            assert item.name == new_name
+
+    assert found
 
 
 async def test_delete_ignored_media(
@@ -41,9 +77,9 @@ async def test_delete_ignored_media(
     rating_keys_to_delete = [
         item.rating_key for item in random.sample(expired_media_ignored_items.items, random_int(1, 5))
     ]
-    await expired_media_ignore_list_manager.delete(rating_keys_to_delete)
+    expired_media_ignore_list_manager.delete(rating_keys_to_delete)
 
-    updated_items = await expired_media_ignore_list_manager.load()
+    updated_items = expired_media_ignore_list_manager.get_all()
     assert updated_items.items == [
         item for item in expired_media_ignored_items.items if item.rating_key not in rating_keys_to_delete
     ]
@@ -58,7 +94,7 @@ async def test_get_ignore_list_expired_items(
         item.ttl = int(time.time()) - random_int(100, 1000)
 
     await expired_media_ignore_list_manager.add([item.cast(ExpiredMediaIgnoredItemIn) for item in items_to_expire])
-    updated_items = await expired_media_ignore_list_manager.load()
+    updated_items = expired_media_ignore_list_manager.get_all()
 
     expired_rating_keys = [item.rating_key for item in items_to_expire]
     assert updated_items.items == [

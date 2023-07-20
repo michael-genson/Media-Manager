@@ -18,8 +18,8 @@
         "--network=host"
     ],
     "mounts": [
-        // mount /env to /config
-        "source=${localWorkspaceFolder}/env,target=/config,type=bind,consistency=cached"
+        // mount /env to /data
+        "source=${localWorkspaceFolder}/env,target=/data,type=bind,consistency=cached",
     ],
     // Configure tool-specific properties.
     "customizations": {

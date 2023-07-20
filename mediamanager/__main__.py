@@ -2,12 +2,12 @@
 
 import asyncio
 import os
-import shutil
 from types import FrameType
 
 import uvicorn
 
-from mediamanager.app import CONFIG_DIR, STATIC_DIR, app, expired_media_settings, settings  # type: ignore
+from mediamanager.app import app, settings  # type: ignore
+from mediamanager.db.db_setup import init_db  # type: ignore
 from mediamanager.scheduler import scheduler  # type: ignore
 
 
@@ -19,19 +19,10 @@ class Server(uvicorn.Server):
         return super().handle_exit(sig, frame)
 
 
-def _create_missing_json_files():
-    files = [expired_media_settings.expired_media_ignore_file]
-
-    for file in files:
-        fp = os.path.join(CONFIG_DIR, file)
-        if not os.path.exists(fp):
-            shutil.copyfile(f"{STATIC_DIR}/default_configs/{os.path.basename(fp)}", fp)
-
-
 def setup():
     """Run server setup tasks"""
 
-    _create_missing_json_files()
+    init_db()
 
 
 async def main():

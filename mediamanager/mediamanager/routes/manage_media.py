@@ -6,7 +6,7 @@ from .. import security
 from ..models.tautulli import TautulliFailedDeletedMedia
 from ..services.factory import ServiceFactory
 
-router = APIRouter(prefix="/api/manage-media", tags=["Manage Media"], dependencies=[Depends(security.require_api_key)])
+router = APIRouter(prefix="/api/manage-media", tags=["Manage Media"], dependencies=[Depends(security.get_current_user)])
 
 
 class RemoveMediaException(Exception):

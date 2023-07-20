@@ -1,9 +1,11 @@
-from tests.fixtures.clients.mock_http_client import MockHTTPClient
-from .mock_ombi_database import OmbiMockDatabase
+import pytest
+
 from mediamanager.mediamanager.clients.ombi import OmbiClient
 from mediamanager.mediamanager.models.ombi import OmbiUser
-from tests.utils.generators import random_email, random_string, random_datetime
-import pytest
+from tests.fixtures.clients.mock_http_client import MockHTTPClient
+from tests.utils.generators import random_datetime, random_email, random_string
+
+from .mock_ombi_database import OmbiMockDatabase
 
 _mock_ombi_db = OmbiMockDatabase()
 

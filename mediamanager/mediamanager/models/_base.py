@@ -1,4 +1,4 @@
-from typing import TypeVar
+from typing import ClassVar, TypeVar
 
 from humps.main import camelize
 from pydantic import BaseModel, root_validator
@@ -8,7 +8,7 @@ T = TypeVar("T", bound=BaseModel)
 
 
 class BaseModelMM(BaseModel):
-    _complex_types: list[type] | None = None
+    _complex_types: ClassVar[list[type] | None] = None
     """
     List of complex types to convert values into during construction (e.g. a `float` into a `Percent`)
 

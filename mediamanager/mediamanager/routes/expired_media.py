@@ -3,13 +3,10 @@ import asyncio
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Path, Query, status
 
 from .. import security
-from ..app import expired_media_settings, schedules, secrets, settings
+from ..app import expired_media_settings, schedules, settings
 from ..models.email import ExpiredMediaEmail, ExpiredMediaEmailFailure
-from ..models.expired_media import (
-    ExpiredMedia,
-    ExpiredMediaIgnoredItemIn,
-    ExpiredMediaIgnoredItems,
-)
+from ..models.expired_media.expired_media import ExpiredMedia
+from ..models.expired_media.ignored_items import ExpiredMediaIgnoredItemIn, ExpiredMediaIgnoredItems
 from ..models.ombi import OmbiUser
 from ..models.tautulli import TautulliMedia
 from ..scheduler import cron, scheduler
@@ -18,7 +15,7 @@ from ..services.factory import ServiceFactory
 
 _ignore_list_manager = ExpiredMediaIgnoreListManager()
 router = APIRouter(
-    prefix="/api/expired-media", tags=["Expired Media"], dependencies=[Depends(security.require_api_key)]
+    prefix="/api/expired-media", tags=["Expired Media"], dependencies=[Depends(security.get_current_user)]
 )
 
 
@@ -47,7 +44,7 @@ async def _get_expired_media(svcs: ServiceFactory, media: TautulliMedia) -> Expi
         return ExpiredMedia(media=media)
 
 
-@router.get("/", response_model=list[ExpiredMedia])
+@router.get("", response_model=list[ExpiredMedia])
 async def get_expired_media(
     max_results: int = Query(
         100, alias="maxResults", description="The maximum number of media items to return. Set to -1 to bypass"
@@ -62,7 +59,7 @@ async def get_expired_media(
 
     svcs = ServiceFactory()
     try:
-        ignored_items = await _ignore_list_manager.load()
+        ignored_items = _ignore_list_manager.get_all()
     except HTTPException:
         ignored_items = None
 
@@ -91,11 +88,13 @@ async def _send_notification_of_expired_media() -> None:
             return
 
         csv_file = svcs.data_exporter.create_csv([media for media in expired_media])
-        msg = ExpiredMediaEmail().message(secrets.smtp_sender, settings.admin_email, len(expired_media), csv_file)
+        msg = ExpiredMediaEmail().message(
+            svcs.app_config.config.smtp_sender, settings.admin_email, len(expired_media), csv_file
+        )
         svcs.smtp.send(msg)
 
     except Exception:
-        msg = ExpiredMediaEmailFailure().message(secrets.smtp_sender, settings.admin_email)
+        msg = ExpiredMediaEmailFailure().message(svcs.app_config.config.smtp_sender, settings.admin_email)
         svcs.smtp.send(msg)
         raise
 
@@ -107,7 +106,7 @@ async def send_notification_of_expired_media(background_tasks: BackgroundTasks) 
 
 @router.get("/ignore-list", response_model=ExpiredMediaIgnoredItems)
 async def get_ignore_list() -> ExpiredMediaIgnoredItems:
-    return await _ignore_list_manager.load()
+    return _ignore_list_manager.get_all()
 
 
 @router.post("/ignore-list/bulk", status_code=status.HTTP_201_CREATED)
@@ -122,7 +121,7 @@ async def add_ignored_media(media: ExpiredMediaIgnoredItemIn = Depends()) -> Non
 
 @router.delete("/ignore-list/bulk", status_code=status.HTTP_200_OK)
 async def delete_ignored_media_bulk(rating_keys: list[str]) -> None:
-    await _ignore_list_manager.delete(rating_keys)
+    _ignore_list_manager.delete(rating_keys)
 
 
 @router.delete("/ignore-list/{ratingKey}", status_code=status.HTTP_200_OK)

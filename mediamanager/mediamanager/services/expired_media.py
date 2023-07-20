@@ -1,74 +1,82 @@
 import asyncio
-import json
-import os
+import time
 
-from ..app import CONFIG_DIR, expired_media_settings
-from ..models.expired_media import ExpiredMediaIgnoredItem, ExpiredMediaIgnoredItemIn, ExpiredMediaIgnoredItems
+from sqlalchemy import update
+
+from ..db.db_setup import session_context
+from ..db.models.expired_media.ignored_items import ExpiredMediaIgnoredItem as ExpiredMediaIgnoredItemDB
+from ..models.expired_media.ignored_items import (
+    ExpiredMediaIgnoredItem,
+    ExpiredMediaIgnoredItemIn,
+    ExpiredMediaIgnoredItems,
+)
 from .factory import ServiceFactory
 
 
 class ExpiredMediaIgnoreListManager:
-    def __init__(self) -> None:
-        self._fp: str | None = None
+    # TODO: optimize this to not constantly read all items (query for specific items instead, like a normal db service)
 
-    @property
-    def fp(self) -> str:
-        if self._fp is None:
-            self._fp = os.path.join(CONFIG_DIR, expired_media_settings.expired_media_ignore_file)
+    @classmethod
+    def _check_if_expired(cls, item: ExpiredMediaIgnoredItemDB) -> bool:
+        return time.time() >= item.ttl if item.ttl is not None else False
 
-        return self._fp
+    def get_all(self) -> ExpiredMediaIgnoredItems:
+        with session_context() as session:
+            live_items: list[ExpiredMediaIgnoredItemDB] = []
+            for item in session.query(ExpiredMediaIgnoredItemDB).all():
+                if not self._check_if_expired(item):
+                    live_items.append(item)
+                else:
+                    session.delete(item)
 
-    async def _save(self, ignored_items: ExpiredMediaIgnoredItems) -> None:
-        with open(self.fp, "w") as f:
-            json.dump(ignored_items.dict(), f, indent=2)
-
-    async def _load(self, save_after_pruning: bool = True) -> ExpiredMediaIgnoredItems:
-        """
-        Load ignore list config file, removing any expired ignore list items
-
-        Optionally save the config file after pruning expired items (default)
-        """
-        ignored_items = ExpiredMediaIgnoredItems.parse_file(self.fp)
-
-        # remove expired ignore items
-        reduced_ignored_items = [item for item in ignored_items.items if not item.is_expired]
-        if len(ignored_items.items) != len(reduced_ignored_items):
-            ignored_items.items = reduced_ignored_items
-            if save_after_pruning:
-                await self._save(ignored_items)
-
-        return ignored_items
-
-    async def load(self) -> ExpiredMediaIgnoredItems:
-        return await self._load()
+            session.commit()
+            return ExpiredMediaIgnoredItems(items=[ExpiredMediaIgnoredItem.from_orm(item) for item in live_items])
 
     async def _process_expired_media_ignored_item(
         self, svcs: ServiceFactory, media: ExpiredMediaIgnoredItemIn
-    ) -> ExpiredMediaIgnoredItem:
+    ) -> ExpiredMediaIgnoredItemIn:
         if media.name:
-            return media.cast(ExpiredMediaIgnoredItem)
+            return media
 
         detail = await svcs.tautulli.get_media_detail(media.rating_key)
-        return media.cast(ExpiredMediaIgnoredItem, name=detail.title)
+        media.name = detail.title
+        return media
 
-    async def add(self, media: list[ExpiredMediaIgnoredItemIn]) -> ExpiredMediaIgnoredItems:
-        ignored_items = await self._load(save_after_pruning=False)
-
-        # remove items that are going to be added to avoid duplicates
-        rating_keys_to_add = set(item.rating_key for item in media)
-        ignored_items.items[:] = [item for item in ignored_items.items if item.rating_key not in rating_keys_to_add]
-
-        # process items and add them to the items list
+    async def add(self, media: list[ExpiredMediaIgnoredItemIn]) -> None:
         svcs = ServiceFactory()
         items_to_add_futures = [self._process_expired_media_ignored_item(svcs, new_media) for new_media in media]
-        ignored_items.items.extend(await asyncio.gather(*items_to_add_futures))
+        new_ignored_items: list[ExpiredMediaIgnoredItemIn] = await asyncio.gather(*items_to_add_futures)
 
-        await self._save(ignored_items)
-        return ignored_items
+        with session_context() as session:
+            # if an ignored item's rating key is already saved, we need to update those instead of adding duplicates
+            new_items_by_rating_key = {item.rating_key: item for item in new_ignored_items}
+            queried_items = (
+                session.query(ExpiredMediaIgnoredItemDB)
+                .filter(ExpiredMediaIgnoredItemDB.rating_key.in_(new_items_by_rating_key.keys()))
+                .all()
+            )
 
-    async def delete(self, rating_keys: list[str]) -> ExpiredMediaIgnoredItems:
-        ignored_items = await self._load(save_after_pruning=False)
-        ignored_items.items[:] = [item for item in ignored_items.items if item.rating_key not in rating_keys]
+            # generate update data by combining new data and the existing data's id
+            update_data = [
+                new_items_by_rating_key.pop(queried_item.rating_key).dict() | {"id": queried_item.id}
+                for queried_item in queried_items
+            ]
 
-        await self._save(ignored_items)
-        return ignored_items
+            session.execute(update(ExpiredMediaIgnoredItemDB), update_data)
+
+            # since we pop off the existing data, the remaining values are new items
+            session.add_all(
+                [ExpiredMediaIgnoredItemDB(**new_item.dict()) for new_item in new_items_by_rating_key.values()]
+            )
+            session.commit()
+
+    def delete(self, rating_keys: list[str]) -> None:
+        with session_context() as session:
+            for item in (
+                session.query(ExpiredMediaIgnoredItemDB)
+                .filter(ExpiredMediaIgnoredItemDB.rating_key.in_(rating_keys))
+                .all()
+            ):
+                session.delete(item)
+
+            session.commit()

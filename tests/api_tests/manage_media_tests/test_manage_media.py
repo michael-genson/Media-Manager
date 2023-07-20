@@ -1,15 +1,16 @@
 import random
+
 from fastapi.testclient import TestClient
-from mediamanager.mediamanager.app import secrets
+
 from mediamanager.mediamanager.models.tautulli import TautulliMedia
 from mediamanager.mediamanager.routes import manage_media
-from mediamanager.mediamanager.security import API_KEY_HEADER_NAME
-
 from tests.fixtures.databases.media_managers.mock_media_manager_database import RadarrMockDatabase
 from tests.utils.generators import random_int, random_string
 
 
-def test_remove_media(api_client: TestClient, tautulli_movies: list[TautulliMedia], radarr_db: RadarrMockDatabase):
+def test_remove_media(
+    api_client: TestClient, auth_headers: dict, tautulli_movies: list[TautulliMedia], radarr_db: RadarrMockDatabase
+):
     for movie in tautulli_movies:
         radarr_db.create_media(movie.media_detail.get_guid("tmdb"))  # type: ignore
 
@@ -17,7 +18,7 @@ def test_remove_media(api_client: TestClient, tautulli_movies: list[TautulliMedi
     movie_to_remove = random.choice(tautulli_movies)
     response = api_client.delete(
         manage_media.router.url_path_for("remove_media", ratingKey=movie_to_remove.media_summary.rating_key),
-        headers={API_KEY_HEADER_NAME: secrets.app_api_key},
+        headers=auth_headers,
     )
 
     response.raise_for_status()
@@ -33,12 +34,14 @@ def test_remove_media(api_client: TestClient, tautulli_movies: list[TautulliMedi
     # verify a 400 error is raised if the media can't be found
     response = api_client.delete(
         manage_media.router.url_path_for("remove_media", ratingKey=random_string()),
-        headers={API_KEY_HEADER_NAME: secrets.app_api_key},
+        headers=auth_headers,
     )
     assert response.status_code == 400
 
 
-def test_remove_media_bulk(api_client: TestClient, tautulli_movies: list[TautulliMedia], radarr_db: RadarrMockDatabase):
+def test_remove_media_bulk(
+    api_client: TestClient, auth_headers: dict, tautulli_movies: list[TautulliMedia], radarr_db: RadarrMockDatabase
+):
     for movie in tautulli_movies:
         radarr_db.create_media(movie.media_detail.get_guid("tmdb"))  # type: ignore
 
@@ -47,7 +50,7 @@ def test_remove_media_bulk(api_client: TestClient, tautulli_movies: list[Tautull
     response = api_client.post(
         manage_media.router.url_path_for("remove_media_bulk"),
         json=[movie.media_summary.rating_key for movie in movies_to_remove],
-        headers={API_KEY_HEADER_NAME: secrets.app_api_key},
+        headers=auth_headers,
     )
 
     response.raise_for_status()
@@ -76,7 +79,7 @@ def test_remove_media_bulk(api_client: TestClient, tautulli_movies: list[Tautull
     response = api_client.post(
         manage_media.router.url_path_for("remove_media_bulk"),
         json=rating_keys,
-        headers={API_KEY_HEADER_NAME: secrets.app_api_key},
+        headers=auth_headers,
     )
 
     response.raise_for_status()
