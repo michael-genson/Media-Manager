@@ -21,9 +21,10 @@ app.mount("/static", StaticFiles(directory=_app_settings.STATIC_DIR), name="stat
 
 
 ### Route Setup ###
-from .routes import auth, expired_media, manage_media, users  # noqa: E402
+from .routes import app_config, auth, expired_media, manage_media, users  # noqa: E402
 
 # Mypy bugs out when determining the router types, so we ignore the type errors
+app.include_router(app_config.router)  # type: ignore
 app.include_router(auth.router)  # type: ignore
 app.include_router(expired_media.router)  # type: ignore
 app.include_router(manage_media.router)  # type: ignore
