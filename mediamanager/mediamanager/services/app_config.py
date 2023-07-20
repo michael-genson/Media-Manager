@@ -1,7 +1,7 @@
 from ..app import secrets, settings
 from ..db.db_setup import session_context
 from ..db.models.app.app_config import AppConfig as AppConfigDB
-from ..models.app.config import AppConfig
+from ..models.app.app_config import AppConfig
 
 
 class AppConfigService:

@@ -9,7 +9,7 @@ from pytest import MonkeyPatch  # noqa:  E402
 
 from mediamanager.mediamanager import app  # noqa:  E402
 from mediamanager.mediamanager.db import db_setup, models as db_models  # noqa:  E402
-from mediamanager.mediamanager.models.app.config import AppConfig  # noqa:  E402
+from mediamanager.mediamanager.models.app.app_config import AppConfig  # noqa:  E402
 from mediamanager.mediamanager.services.app_config import AppConfigService  # noqa:  E402
 from mediamanager.mediamanager.services.smtp import SMTPService  # noqa:  E402
 

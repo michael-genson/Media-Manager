@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from .. import security
-from ..models.app.config import AppConfig
+from ..models.app.app_config import AppConfig
 from ..services.factory import ServiceFactory
 
 router = APIRouter(prefix="/api/config", tags=["App Config"], dependencies=[Depends(security.get_current_user)])
