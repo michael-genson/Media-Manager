@@ -47,7 +47,7 @@ async def _get_expired_media(svcs: ServiceFactory, media: TautulliMedia) -> Expi
         return ExpiredMedia(media=media)
 
 
-@router.get("/", response_model=list[ExpiredMedia])
+@router.get("", response_model=list[ExpiredMedia])
 async def get_expired_media(
     max_results: int = Query(
         100, alias="maxResults", description="The maximum number of media items to return. Set to -1 to bypass"

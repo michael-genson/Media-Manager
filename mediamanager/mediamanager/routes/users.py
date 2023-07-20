@@ -8,7 +8,7 @@ from ..services.factory import ServiceFactory
 router = APIRouter(prefix="/api/users", tags=["Users"], dependencies=[Depends(security.get_current_user)])
 
 
-@router.get("/", response_model=list[User])
+@router.get("", response_model=list[User])
 def get_all_users() -> list[User]:
     svcs = ServiceFactory()
     return svcs.users.get_all_users()
@@ -36,7 +36,7 @@ def get_user_by_email(email: str) -> User:
         return user
 
 
-@router.post("/", response_model=User)
+@router.post("", response_model=User)
 def create_user(email: str = Body(...), password: str = Body(...)) -> User:
     svcs = ServiceFactory()
     try:
