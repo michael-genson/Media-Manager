@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from freezegun import freeze_time
 
 from mediamanager.mediamanager.app import expired_media_settings
-from mediamanager.mediamanager.models.expired_media import ExpiredMedia
+from mediamanager.mediamanager.models.expired_media.expired_media import ExpiredMedia
 from mediamanager.mediamanager.models.ombi import OmbiUser
 from mediamanager.mediamanager.models.tautulli import (
     LibraryType,

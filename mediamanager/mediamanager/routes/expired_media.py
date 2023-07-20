@@ -5,11 +5,8 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Path, Qu
 from .. import security
 from ..app import expired_media_settings, schedules, settings
 from ..models.email import ExpiredMediaEmail, ExpiredMediaEmailFailure
-from ..models.expired_media import (
-    ExpiredMedia,
-    ExpiredMediaIgnoredItemIn,
-    ExpiredMediaIgnoredItems,
-)
+from ..models.expired_media.expired_media import ExpiredMedia
+from ..models.expired_media.ignored_items import ExpiredMediaIgnoredItemIn, ExpiredMediaIgnoredItems
 from ..models.ombi import OmbiUser
 from ..models.tautulli import TautulliMedia
 from ..scheduler import cron, scheduler

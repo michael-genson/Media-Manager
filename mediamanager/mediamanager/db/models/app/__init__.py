@@ -1,3 +1,3 @@
 # ruff: noqa: F403
 
-from .config import *
+from .app_config import *

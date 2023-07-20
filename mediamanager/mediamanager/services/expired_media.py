@@ -3,7 +3,11 @@ import json
 import os
 
 from ..app import CONFIG_DIR, expired_media_settings
-from ..models.expired_media import ExpiredMediaIgnoredItem, ExpiredMediaIgnoredItemIn, ExpiredMediaIgnoredItems
+from ..models.expired_media.ignored_items import (
+    ExpiredMediaIgnoredItem,
+    ExpiredMediaIgnoredItemIn,
+    ExpiredMediaIgnoredItems,
+)
 from .factory import ServiceFactory
 
 

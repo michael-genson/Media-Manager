@@ -5,7 +5,10 @@ from tempfile import NamedTemporaryFile
 import pytest
 
 from mediamanager.mediamanager.app import STATIC_DIR, expired_media_settings
-from mediamanager.mediamanager.models.expired_media import ExpiredMediaIgnoredItemIn, ExpiredMediaIgnoredItems
+from mediamanager.mediamanager.models.expired_media.ignored_items import (
+    ExpiredMediaIgnoredItemIn,
+    ExpiredMediaIgnoredItems,
+)
 from mediamanager.mediamanager.services.expired_media import ExpiredMediaIgnoreListManager
 from tests.utils.generators import random_string
 
