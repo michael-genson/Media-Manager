@@ -34,17 +34,18 @@ class ExpiredMediaIgnoreListManager:
 
     async def _process_expired_media_ignored_item(
         self, svcs: ServiceFactory, media: ExpiredMediaIgnoredItemIn
-    ) -> ExpiredMediaIgnoredItem:
+    ) -> ExpiredMediaIgnoredItemIn:
         if media.name:
-            return media.cast(ExpiredMediaIgnoredItem)
+            return media
 
         detail = await svcs.tautulli.get_media_detail(media.rating_key)
-        return media.cast(ExpiredMediaIgnoredItem, name=detail.title)
+        media.name = detail.title
+        return media
 
     async def add(self, media: list[ExpiredMediaIgnoredItemIn]) -> None:
         svcs = ServiceFactory()
         items_to_add_futures = [self._process_expired_media_ignored_item(svcs, new_media) for new_media in media]
-        new_ignored_items: list[ExpiredMediaIgnoredItem] = await asyncio.gather(*items_to_add_futures)
+        new_ignored_items: list[ExpiredMediaIgnoredItemIn] = await asyncio.gather(*items_to_add_futures)
 
         with session_context() as session:
             # if an ignored item's rating key is already saved, we need to update those instead of adding duplicates
@@ -64,7 +65,9 @@ class ExpiredMediaIgnoreListManager:
             session.execute(update(ExpiredMediaIgnoredItemDB), update_data)
 
             # since we pop off the existing data, the remaining values are new items
-            session.add_all(new_items_by_rating_key.values())
+            session.add_all(
+                [ExpiredMediaIgnoredItemDB(**new_item.dict()) for new_item in new_items_by_rating_key.values()]
+            )
             session.commit()
 
     def delete(self, rating_keys: list[str]) -> None:
