@@ -22,7 +22,7 @@ class UserService:
         return email.strip().lower()
 
     def get_private_user(self, email: str) -> _PrivateUser | None:
-        """Gets an unauthenticated user, if they exist"""
+        """Gets an unauthenticated private user, if they exist"""
 
         with session_context() as session:
             user_in_db = session.query(UserInDB).filter_by(email=self._sanitize_email(email)).first()
@@ -95,3 +95,22 @@ class UserService:
 
             session.delete(user_in_db)
             session.commit()
+
+    def get_all_users(self) -> list[User]:
+        with session_context() as session:
+            users_in_db = session.query(UserInDB).all()
+            return [User.from_orm(user) for user in users_in_db]
+
+    def get_public_user(self, id: str) -> User | None:
+        """Gets an unauthenticated public user, if they exist"""
+
+        with session_context() as session:
+            user_in_db = session.query(UserInDB).filter_by(id=id).first()
+            return User.from_orm(user_in_db) if user_in_db else None
+
+    def get_public_user_by_email(self, email: str) -> User | None:
+        """Gets an unauthenticated public user by email, if they exist"""
+
+        with session_context() as session:
+            user_in_db = session.query(UserInDB).filter_by(email=self._sanitize_email(email)).first()
+            return User.from_orm(user_in_db) if user_in_db else None
