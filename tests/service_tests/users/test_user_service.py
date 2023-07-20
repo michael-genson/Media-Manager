@@ -77,7 +77,7 @@ def test_delete_user(svcs: ServiceFactory):
     password = random_string()
 
     new_user = svcs.users.create_user(email, password)
-    svcs.users.delete_user(email)
+    svcs.users.delete_user(new_user.id)
     assert svcs.users.get_private_user(email) is None
     assert svcs.users.get_authenticated_user(email, password) is None
 
@@ -106,6 +106,6 @@ def test_get_user_from_invalid_token(svcs: ServiceFactory):
         with pytest.raises(InvalidTokenError):
             svcs.users.get_authenticated_user_from_token(token)
 
-    svcs.users.delete_user(new_user.email)
+    svcs.users.delete_user(new_user.id)
     with pytest.raises(UserDoesntExistError):
         svcs.users.get_authenticated_user_from_token(token)

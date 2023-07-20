@@ -53,3 +53,50 @@ def test_get_user_by_email_sanitize(api_client: TestClient, user: User, auth_hea
 def test_get_user_by_invalid_email(api_client: TestClient, auth_headers: dict):
     r = api_client.get(users.router.url_path_for("get_user_by_email", email=random_email()), headers=auth_headers)
     assert r.status_code == 404
+
+
+def test_create_user(api_client: TestClient, auth_headers: dict):
+    email = random_email()
+    password = random_string()
+
+    r = api_client.post(
+        users.router.url_path_for("create_user"), json={"email": email, "password": password}, headers=auth_headers
+    )
+    r.raise_for_status()
+
+    created_user = User.parse_obj(r.json())
+    assert created_user.email == email
+
+    r = api_client.get(users.router.url_path_for("get_user_by_email", email=created_user.email), headers=auth_headers)
+    r.raise_for_status()
+    data = r.json()
+
+    assert created_user == User.parse_obj(data)
+
+
+def test_create_existing_user(api_client: TestClient, user: User, auth_headers: dict):
+    r = api_client.post(
+        users.router.url_path_for("create_user"),
+        json={"email": user.email, "password": random_string()},
+        headers=auth_headers,
+    )
+    assert r.status_code == 409
+
+
+def test_delete_user(api_client: TestClient, auth_headers: dict):
+    user = User.parse_obj(
+        api_client.post(
+            users.router.url_path_for("create_user"),
+            json={"email": random_email(), "password": random_string()},
+            headers=auth_headers,
+        ).json()
+    )
+
+    api_client.delete(users.router.url_path_for("delete_user", id=user.id), headers=auth_headers)
+    r = api_client.get(users.router.url_path_for("get_user", id=user.id), headers=auth_headers)
+    assert r.status_code == 404
+
+    # the deleted user shouldn't be able to authenticate
+    auth_headers["authorization"] = f"Bearer {user.create_token()}"
+    r = api_client.get(users.router.url_path_for("get_all_users"), headers=auth_headers)
+    assert r.status_code == 401

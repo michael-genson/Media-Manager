@@ -87,9 +87,9 @@ class UserService:
 
             return User.from_orm(new_user)
 
-    def delete_user(self, email: str) -> None:
+    def delete_user(self, id: str) -> None:
         with session_context() as session:
-            user_in_db = session.query(UserInDB).filter_by(email=self._sanitize_email(email)).first()
+            user_in_db = session.query(UserInDB).filter_by(id=id).first()
             if not user_in_db:
                 return
 

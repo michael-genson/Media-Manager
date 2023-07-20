@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 
 from .. import security
+from ..models.users.exceptions import UserAlreadyExistsError
 from ..models.users.users import User
 from ..services.factory import ServiceFactory
 
@@ -33,3 +34,18 @@ def get_user_by_email(email: str) -> User:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
     else:
         return user
+
+
+@router.post("/", response_model=User)
+def create_user(email: str = Body(...), password: str = Body(...)) -> User:
+    svcs = ServiceFactory()
+    try:
+        return svcs.users.create_user(email, password)
+    except UserAlreadyExistsError as e:
+        raise HTTPException(status.HTTP_409_CONFLICT, "user already exists") from e
+
+
+@router.delete("/{id}", response_model=None)
+def delete_user(id: str) -> None:
+    svcs = ServiceFactory()
+    svcs.users.delete_user(id)
