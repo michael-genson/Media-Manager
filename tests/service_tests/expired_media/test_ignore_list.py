@@ -14,7 +14,7 @@ async def test_get_ignore_list(
     expired_media_ignore_list_manager: ExpiredMediaIgnoreListManager,
     expired_media_ignored_items: ExpiredMediaIgnoredItems,
 ):
-    assert await expired_media_ignore_list_manager.load() == expired_media_ignored_items
+    assert expired_media_ignore_list_manager.get_all() == expired_media_ignored_items
 
 
 async def test_add_ignored_media(
@@ -29,7 +29,7 @@ async def test_add_ignored_media(
     ]
     await expired_media_ignore_list_manager.add(new_items)
 
-    updated_items = await expired_media_ignore_list_manager.load()
+    updated_items = expired_media_ignore_list_manager.get_all()
     assert updated_items.items == expired_media_ignored_items.items + [
         new_item.cast(ExpiredMediaIgnoredItem) for new_item in new_items
     ]
@@ -42,9 +42,9 @@ async def test_delete_ignored_media(
     rating_keys_to_delete = [
         item.rating_key for item in random.sample(expired_media_ignored_items.items, random_int(1, 5))
     ]
-    await expired_media_ignore_list_manager.delete(rating_keys_to_delete)
+    expired_media_ignore_list_manager.delete(rating_keys_to_delete)
 
-    updated_items = await expired_media_ignore_list_manager.load()
+    updated_items = expired_media_ignore_list_manager.get_all()
     assert updated_items.items == [
         item for item in expired_media_ignored_items.items if item.rating_key not in rating_keys_to_delete
     ]
@@ -59,7 +59,7 @@ async def test_get_ignore_list_expired_items(
         item.ttl = int(time.time()) - random_int(100, 1000)
 
     await expired_media_ignore_list_manager.add([item.cast(ExpiredMediaIgnoredItemIn) for item in items_to_expire])
-    updated_items = await expired_media_ignore_list_manager.load()
+    updated_items = expired_media_ignore_list_manager.get_all()
 
     expired_rating_keys = [item.rating_key for item in items_to_expire]
     assert updated_items.items == [

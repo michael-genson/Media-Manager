@@ -1,5 +1,3 @@
-import time
-
 from .._base import APIBase
 
 
@@ -13,11 +11,11 @@ class ExpiredMediaIgnoredItemIn(APIBase):
 
 
 class ExpiredMediaIgnoredItem(ExpiredMediaIgnoredItemIn):
+    id: str
     name: str
 
-    @property
-    def is_expired(self) -> bool:
-        return time.time() >= self.ttl if self.ttl else False
+    class Config:
+        orm_mode = True
 
 
 class ExpiredMediaIgnoredItems(APIBase):

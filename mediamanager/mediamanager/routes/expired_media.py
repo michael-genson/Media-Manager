@@ -59,7 +59,7 @@ async def get_expired_media(
 
     svcs = ServiceFactory()
     try:
-        ignored_items = await _ignore_list_manager.load()
+        ignored_items = _ignore_list_manager.get_all()
     except HTTPException:
         ignored_items = None
 
@@ -106,7 +106,7 @@ async def send_notification_of_expired_media(background_tasks: BackgroundTasks) 
 
 @router.get("/ignore-list", response_model=ExpiredMediaIgnoredItems)
 async def get_ignore_list() -> ExpiredMediaIgnoredItems:
-    return await _ignore_list_manager.load()
+    return _ignore_list_manager.get_all()
 
 
 @router.post("/ignore-list/bulk", status_code=status.HTTP_201_CREATED)
@@ -121,7 +121,7 @@ async def add_ignored_media(media: ExpiredMediaIgnoredItemIn = Depends()) -> Non
 
 @router.delete("/ignore-list/bulk", status_code=status.HTTP_200_OK)
 async def delete_ignored_media_bulk(rating_keys: list[str]) -> None:
-    await _ignore_list_manager.delete(rating_keys)
+    _ignore_list_manager.delete(rating_keys)
 
 
 @router.delete("/ignore-list/{ratingKey}", status_code=status.HTTP_200_OK)

@@ -72,8 +72,6 @@ class ExpiredMediaSettings(BaseSettings):
     """How old media must be before it can be considered expired, in days"""
     expired_media_last_watched_threshold: int = 90
     """The threshold of when media is considered expired, in days"""
-    expired_media_ignore_file: str = "expired_media_ignore.json"
-    """The expiration blacklist JSON config filepath"""
 
     @validator("expired_media_min_age", "expired_media_last_watched_threshold")
     def assert_non_negative_value(cls, v: int, field: ModelField) -> int:
