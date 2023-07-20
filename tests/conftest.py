@@ -1,7 +1,7 @@
 import os
 
 # force app to use temp database
-os.environ["db_file"] = "/data/temp_db.db"
+os.environ["db_file"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), "pytest_db.db")
 
 import pytest  # noqa:  E402
 from fastapi.testclient import TestClient  # noqa:  E402
