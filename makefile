@@ -1,6 +1,13 @@
 SHELL := /bin/bash
 
-local-build:
+.PHONY: backend
+backend:
 	source env/secrets.sh && \
-	python -m mediamanager.mediamanager.db.db_setup && \
-	uvicorn mediamanager.mediamanager.app:app --reload --port 9000
+	python mediamanager
+
+.PHONY: frontend
+frontend:
+	cd frontend && yarn run dev --host --port 3000
+
+frontend-prod:
+	cd frontend && yarn run build && yarn run start -p 3000

@@ -47,11 +47,15 @@ COPY --from=builder-base $POETRY_HOME $POETRY_HOME
 COPY ./mediamanager $PROJECT_HOME/mediamanager
 COPY ./poetry.lock ./pyproject.toml $PROJECT_HOME/
 
+# Alembic
+COPY ./alembic $PROJECT_HOME/alembic
+COPY ./alembic.ini $PROJECT_HOME/
+
 # install runtime deps
 WORKDIR $PROJECT_HOME
 RUN poetry install --only main
 
-VOLUME [ "$PROJECT_HOME/config/" ]
+VOLUME [ "$PROJECT_HOME/data/" ]
 ENV APP_PORT=9000
 
 EXPOSE ${APP_PORT}

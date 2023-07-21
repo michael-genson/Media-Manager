@@ -6,17 +6,17 @@ import pytest
 from fastapi.testclient import TestClient
 from freezegun import freeze_time
 
-from mediamanager.mediamanager.app import expired_media_settings
-from mediamanager.mediamanager.models.expired_media.expired_media import ExpiredMedia
-from mediamanager.mediamanager.models.ombi import OmbiUser
-from mediamanager.mediamanager.models.tautulli import (
+from mediamanager.app import expired_media_settings
+from mediamanager.models.expired_media.expired_media import ExpiredMedia
+from mediamanager.models.ombi import OmbiUser
+from mediamanager.models.tautulli import (
     LibraryType,
     TautulliLibrary,
     TautulliMedia,
     TautulliMediaDetail,
     TautulliMediaSummary,
 )
-from mediamanager.mediamanager.routes import expired_media as expired_media_routes
+from mediamanager.routes import expired_media as expired_media_routes
 from tests.fixtures.databases.media_managers.mock_media_manager_database import RadarrMockDatabase
 from tests.fixtures.databases.tautulli.mock_tautulli_database import TautulliMockDatabase
 from tests.utils.generators import random_datetime, random_int, random_string

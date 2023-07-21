@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -18,6 +19,13 @@ expired_media_settings = _app_settings.ExpiredMediaSettings()
 
 app = FastAPI(title=settings.app_title, version=settings.app_version)
 app.mount("/static", StaticFiles(directory=_app_settings.STATIC_DIR), name="static")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 ### Route Setup ###

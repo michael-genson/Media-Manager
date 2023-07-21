@@ -3,15 +3,15 @@ from datetime import datetime, timedelta
 import pytest
 from freezegun import freeze_time
 
-from mediamanager.mediamanager.db.db_setup import session_context
-from mediamanager.mediamanager.db.models.users.users import UserInDB
-from mediamanager.mediamanager.models.users.exceptions import (
+from mediamanager.db.db_setup import session_context
+from mediamanager.db.models.users.users import UserInDB
+from mediamanager.models.users.exceptions import (
     InvalidTokenError,
     UserAlreadyExistsError,
     UserDoesntExistError,
 )
-from mediamanager.mediamanager.models.users.users import User
-from mediamanager.mediamanager.services.factory import ServiceFactory
+from mediamanager.models.users.users import User
+from mediamanager.services.factory import ServiceFactory
 from tests.utils.generators import random_email, random_int, random_string
 
 

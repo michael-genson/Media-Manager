@@ -46,6 +46,7 @@ line_length = 120
 [tool.mypy]
 exclude = ['alembic/*']
 
+
 [tool.ruff]
 extend-exclude = ["alembic/*"]
 line-length = 120

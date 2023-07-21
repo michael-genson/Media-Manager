@@ -2,8 +2,8 @@ import random
 
 from fastapi.testclient import TestClient
 
-from mediamanager.mediamanager.models.tautulli import TautulliMedia
-from mediamanager.mediamanager.routes import manage_media
+from mediamanager.models.tautulli import TautulliMedia
+from mediamanager.routes import manage_media
 from tests.fixtures.databases.media_managers.mock_media_manager_database import RadarrMockDatabase
 from tests.utils.generators import random_int, random_string
 

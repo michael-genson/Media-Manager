@@ -1,8 +1,8 @@
 from fastapi.testclient import TestClient
 
-from mediamanager.mediamanager.models.users.users import User
-from mediamanager.mediamanager.routes import users
-from mediamanager.mediamanager.services.factory import ServiceFactory
+from mediamanager.models.users.users import User
+from mediamanager.routes import users
+from mediamanager.services.factory import ServiceFactory
 from tests.utils.generators import random_email, random_int, random_string
 
 

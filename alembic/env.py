@@ -3,9 +3,9 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-from mediamanager.mediamanager.db._model_base import SqlAlchemyBase
-from mediamanager.mediamanager.app import settings
-from mediamanager.mediamanager.db.models import *
+from mediamanager.db._model_base import SqlAlchemyBase
+from mediamanager.app import settings
+from mediamanager.db.models import *
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

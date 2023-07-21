@@ -1,7 +1,7 @@
-from mediamanager.mediamanager.db.db_setup import session_context
-from mediamanager.mediamanager.db.models.app.app_config import AppConfig as AppConfigDB
-from mediamanager.mediamanager.models.app.app_config import AppConfig
-from mediamanager.mediamanager.services.factory import ServiceFactory
+from mediamanager.db.db_setup import session_context
+from mediamanager.db.models.app.app_config import AppConfig as AppConfigDB
+from mediamanager.models.app.app_config import AppConfig
+from mediamanager.services.factory import ServiceFactory
 from tests.utils.generators import random_int, random_url
 
 

@@ -1,7 +1,7 @@
 import pytest
 
-from mediamanager.mediamanager.clients.media_managers import RadarrClient, SonarrClient
-from mediamanager.mediamanager.models.media_managers import MediaManagerTag, RadarrMedia, SonarrMedia
+from mediamanager.clients.media_managers import RadarrClient, SonarrClient
+from mediamanager.models.media_managers import MediaManagerTag, RadarrMedia, SonarrMedia
 from tests.fixtures.clients.mock_http_client import MockHTTPClient
 from tests.utils.generators import random_int, random_string
 

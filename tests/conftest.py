@@ -7,11 +7,11 @@ import pytest  # noqa:  E402
 from fastapi.testclient import TestClient  # noqa:  E402
 from pytest import MonkeyPatch  # noqa:  E402
 
-from mediamanager.mediamanager import app  # noqa:  E402
-from mediamanager.mediamanager.db import db_setup, models as db_models  # noqa:  E402
-from mediamanager.mediamanager.models.app.app_config import AppConfig  # noqa:  E402
-from mediamanager.mediamanager.services.app_config import AppConfigService  # noqa:  E402
-from mediamanager.mediamanager.services.smtp import SMTPService  # noqa:  E402
+from mediamanager import app  # noqa:  E402
+from mediamanager.db import db_setup, models as db_models  # noqa:  E402
+from mediamanager.models.app.app_config import AppConfig  # noqa:  E402
+from mediamanager.services.app_config import AppConfigService  # noqa:  E402
+from mediamanager.services.smtp import SMTPService  # noqa:  E402
 
 from .fixtures import *  # noqa:  E402, F403
 from .utils.generators import random_email, random_string, random_url  # noqa:  E402

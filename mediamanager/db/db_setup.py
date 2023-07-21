@@ -76,7 +76,7 @@ def init_db():
             if max_retry == 0:
                 raise ConnectionError("Database connection failed - exiting application.")
 
-        alembic_cfg = Config(Path(APP_DIR).parent.parent / "alembic.ini")
+        alembic_cfg = Config(Path(APP_DIR).parent / "alembic.ini")
         if db_is_at_head(alembic_cfg):
             logger.debug("Migration not needed.")
         else:

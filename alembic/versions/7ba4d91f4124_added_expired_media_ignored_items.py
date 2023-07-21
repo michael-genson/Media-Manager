@@ -12,7 +12,7 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.orm.session import Session
 
-from mediamanager.mediamanager.app import CONFIG_DIR
+from mediamanager.app import CONFIG_DIR
 
 
 # revision identifiers, used by Alembic.
