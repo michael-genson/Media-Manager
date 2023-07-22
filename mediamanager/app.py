@@ -37,6 +37,7 @@ app.include_router(auth.router)  # type: ignore
 app.include_router(expired_media.router)  # type: ignore
 app.include_router(manage_media.router)  # type: ignore
 app.include_router(users.router)  # type: ignore
+app.include_router(users.default_user_router)  # type: ignore
 
 
 # default route

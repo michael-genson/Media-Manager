@@ -6,6 +6,7 @@ from ..app import secrets
 from ..db.db_setup import session_context
 from ..db.models.users.users import UserInDB
 from ..models.users.exceptions import (
+    DefaultUserError,
     InvalidPasswordError,
     InvalidTokenError,
     UserAlreadyExistsError,
@@ -49,7 +50,7 @@ class UserService:
         except InvalidPasswordError:
             return None
 
-    def get_authenticated_user_from_token(self, token: str) -> User:
+    def get_authenticated_user_from_token(self, token: str, allow_default: bool = False) -> User:
         """Fetches a user using a valid access token"""
 
         try:
@@ -65,6 +66,8 @@ class UserService:
         user = self.get_private_user(email)
         if not user:
             raise UserDoesntExistError()
+        if user.is_default_user and not allow_default:
+            raise DefaultUserError()
 
         return user.cast(User)
 
@@ -96,9 +99,17 @@ class UserService:
             session.delete(user_in_db)
             session.commit()
 
-    def get_all_users(self) -> list[User]:
+    def delete_default_users(self) -> None:
         with session_context() as session:
-            users_in_db = session.query(UserInDB).all()
+            default_users = session.query(UserInDB).filter_by(is_default_user=True).all()
+            for user in default_users:
+                session.delete(user)
+
+            session.commit()
+
+    def get_all_users(self, **filters) -> list[User]:
+        with session_context() as session:
+            users_in_db = session.query(UserInDB).filter_by(**filters).all()
             return [User.from_orm(user) for user in users_in_db]
 
     def get_public_user(self, id: str) -> User | None:

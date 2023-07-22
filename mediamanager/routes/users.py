@@ -6,6 +6,23 @@ from ..models.users.users import User
 from ..services.factory import ServiceFactory
 
 router = APIRouter(prefix="/api/users", tags=["Users"], dependencies=[Depends(security.get_current_user)])
+default_user_router = APIRouter(
+    prefix="/api/users", tags=["Users"], dependencies=[Depends(security.get_default_user)], include_in_schema=False
+)
+
+
+@default_user_router.post("/replace-default")
+def replace_default_user(email: str = Body(...), password: str = Body(...)) -> User:
+    """Create a new user and delete all default users"""
+
+    svcs = ServiceFactory()
+    try:
+        new_user = svcs.users.create_user(email, password)
+    except UserAlreadyExistsError as e:
+        raise HTTPException(status.HTTP_409_CONFLICT, "user already exists") from e
+
+    svcs.users.delete_default_users()
+    return new_user
 
 
 @router.get("", response_model=list[User])

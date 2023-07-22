@@ -18,6 +18,11 @@ class UserDoesntExistError(UserAuthenticationError):
         super().__init__("User doesn't exist")
 
 
+class DefaultUserError(UserAuthenticationError):
+    def __init__(self):
+        super().__init__("Cannot authenticate using default user")
+
+
 ###
 
 

@@ -6,6 +6,7 @@ from freezegun import freeze_time
 from mediamanager.db.db_setup import session_context
 from mediamanager.db.models.users.users import UserInDB
 from mediamanager.models.users.exceptions import (
+    DefaultUserError,
     InvalidTokenError,
     UserAlreadyExistsError,
     UserDoesntExistError,
@@ -71,6 +72,12 @@ def test_get_invalid_user(svcs: ServiceFactory):
     assert svcs.users.get_authenticated_user(random_email(), random_string()) is None
     assert svcs.users.get_authenticated_user(email, random_string()) is None
 
+    default_user = svcs.users.create_user(random_email(), random_string(), is_default_user=True)
+    with pytest.raises(DefaultUserError):
+        assert svcs.users.get_authenticated_user_from_token(default_user.create_token()) is None
+
+    assert svcs.users.get_authenticated_user_from_token(default_user.create_token(), allow_default=True) == default_user
+
 
 def test_delete_user(svcs: ServiceFactory):
     email = random_email()
@@ -109,3 +116,18 @@ def test_get_user_from_invalid_token(svcs: ServiceFactory):
     svcs.users.delete_user(new_user.id)
     with pytest.raises(UserDoesntExistError):
         svcs.users.get_authenticated_user_from_token(token)
+
+
+def test_delete_default_users(svcs: ServiceFactory):
+    default_users = [
+        svcs.users.create_user(random_email(), random_string(), is_default_user=True) for _ in range(random_int(3, 10))
+    ]
+
+    all_users = svcs.users.get_all_users()
+    for user in default_users:
+        assert user in all_users
+
+    svcs.users.delete_default_users()
+    all_users = svcs.users.get_all_users()
+    for user in default_users:
+        assert user not in all_users
