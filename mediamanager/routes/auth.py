@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
 from ..models.users.users import Token, User
-from ..security import UNAUTHORIZED_ERROR, get_current_user
+from ..security import UNAUTHORIZED_ERROR, get_any_user
 from ..services.factory import ServiceFactory
 
 router = APIRouter(prefix="/api/authorization", tags=["Authorization"])
@@ -21,10 +21,10 @@ async def log_in_for_access_token(form_data: OAuth2PasswordRequestForm = Depends
 
 
 @router.post("/token/refresh", response_model=Token)
-def refresh_token(user: User = Depends(get_current_user)) -> Token:
+def refresh_token(user: User = Depends(get_any_user)) -> Token:
     return Token(access_token=user.create_token())
 
 
 @router.get("/me", response_model=User)
-async def get_logged_in_user(user: User = Depends(get_current_user)) -> User:
+async def get_logged_in_user(user: User = Depends(get_any_user)) -> User:
     return user

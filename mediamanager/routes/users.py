@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Body, Depends, HTTPException, status
+from fastapi import APIRouter, Body, Depends, Form, HTTPException, status
 
 from .. import security
 from ..models.users.exceptions import UserAlreadyExistsError
-from ..models.users.users import User
+from ..models.users.users import Token, User
 from ..services.factory import ServiceFactory
 
 router = APIRouter(prefix="/api/users", tags=["Users"], dependencies=[Depends(security.get_current_user)])
@@ -12,7 +12,7 @@ default_user_router = APIRouter(
 
 
 @default_user_router.post("/replace-default")
-def replace_default_user(email: str = Body(...), password: str = Body(...)) -> User:
+def replace_default_user(email: str = Form(..., alias="username"), password: str = Form(...)) -> Token:
     """Create a new user and delete all default users"""
 
     svcs = ServiceFactory()
@@ -22,7 +22,7 @@ def replace_default_user(email: str = Body(...), password: str = Body(...)) -> U
         raise HTTPException(status.HTTP_409_CONFLICT, "user already exists") from e
 
     svcs.users.delete_default_users()
-    return new_user
+    return Token(access_token=new_user.create_token())
 
 
 @router.get("", response_model=list[User])

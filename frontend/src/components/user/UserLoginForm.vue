@@ -35,21 +35,26 @@
             size="large"
             variant="tonal"
         >
-            <v-progress-circular v-if="props.loading" indeterminate color="primary" />
-            <div v-if="!props.loading">Log In</div>
+            <v-progress-circular v-if="loading" indeterminate color="primary" />
+            <div v-if="!loading">Log In</div>
         </v-btn>
+        <v-card-text v-if="errorMessage" class="text-danger text-h6 text-center pb-0">{{ errorMessage }}</v-card-text>
     </v-form>
 </template>
 
 <script setup lang="ts">
+import { access_token_cookie, useApi } from "@/services/backend/client";
+import type { Token } from "@/types/mediamanager/users";
 import { reactive, ref } from "vue";
+import { useCookies } from "@vueuse/integrations/useCookies";
+const emit = defineEmits(["loggedIn"])
 
-const props = defineProps({
-    loading: { type: Boolean, default: false }
-})
-const emit = defineEmits(["submit"])
-
+const loading = ref(false);
+const errorMessage = ref("");
 const visible = ref(false);
+
+const api = useApi();
+const cookies = useCookies();
 
 const formIsValid = ref(false);
 const form = reactive<LoginForm>({
@@ -63,10 +68,28 @@ const validations = {
     isEmail: (val: string) => emailRegex.test(val) || "Invalid email",
 }
 
-const handleSubmit = () => {
-    if (formIsValid.value) {
-        emit("submit", form);
+async function handleSubmit() {
+    if (!formIsValid.value) {
+        return;
     }
+
+    loading.value = true;
+    errorMessage.value = "";
+
+    const formData = new FormData();
+    formData.append("username", form.email);
+    formData.append("password", form.password);
+
+    const { data } = await api.post<Token>("/api/authorization/token", formData);
+    if (!data) {
+        loading.value = false;
+        errorMessage.value = "Invalid Login";
+        return;
+    }
+
+    cookies.set(access_token_cookie, `${data.token_type || "Bearer"} ${data.access_token}`)
+    console.log(cookies.get(access_token_cookie));
+    emit("loggedIn");
 }
 </script>
 

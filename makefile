@@ -7,10 +7,10 @@ backend:
 
 .PHONY: frontend
 frontend:
-	cd frontend && yarn run dev --host --port 3000
+	cd frontend && yarn run dev --host --port 3001
 
 frontend-prod:
-	cd frontend && yarn run build && yarn run start -p 3000
+	cd frontend && yarn run build && yarn run start -p 3001
 
 .PHONY: dev
 generate:

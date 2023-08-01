@@ -6,7 +6,7 @@ import axios from "axios";
 import "vuetify/styles"
 import "@mdi/font/css/materialdesignicons.css"
 import { createVuetify } from "vuetify"
-import type {ThemeDefinition } from "vuetify"
+import type { ThemeDefinition } from "vuetify"
 import { aliases, mdi } from "vuetify/iconsets/mdi"
 import { customIcons } from "@/assets/icons/customIcons";
 import * as components from "vuetify/components"

@@ -25,12 +25,21 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
         raise UNAUTHORIZED_ERROR
 
 
+async def get_any_user(token: str = Depends(oauth2_scheme)) -> User:
+    """Gets the currently authenticated user, even if they are a default user"""
+    svcs = ServiceFactory()
+    try:
+        return svcs.users.get_authenticated_user_from_token(token, allow_default=True)
+
+    except UserAuthenticationError:
+        raise UNAUTHORIZED_ERROR
+
+
 async def get_default_user(token: str = Depends(oauth2_scheme)) -> User:
     """Gets the currently authenticated user"""
 
-    svcs = ServiceFactory()
     try:
-        user = svcs.users.get_authenticated_user_from_token(token, allow_default=True)
+        user = await get_any_user(token)
         if user.is_default_user:
             return user
         else:
