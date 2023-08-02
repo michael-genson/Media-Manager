@@ -2,8 +2,8 @@ from datetime import timedelta
 
 import pytest
 
-from mediamanager.mediamanager.models.users.users import User
-from mediamanager.mediamanager.services.factory import ServiceFactory
+from mediamanager.models.users.users import User
+from mediamanager.services.factory import ServiceFactory
 from tests.utils.generators import random_email, random_string
 
 

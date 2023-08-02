@@ -1,0 +1,22 @@
+version: "3.8"
+services:
+  backend:
+    container_name: media-manager-backend
+    build:
+      context: ../
+      dockerfile: ./docker/api.Dockerfile
+    restart: always
+    ports:
+      - 9000:9000
+    volumes:
+      - ./data:/data
+
+  frontend:
+    container_name: media-manager-frontend
+    build:
+      context: ../
+      dockerfile: ./docker/frontend.Dockerfile
+    ports:
+      - 3000:3000
+    volumes:
+      - ./data:/data

@@ -1,6 +1,6 @@
 from abc import abstractmethod, abstractproperty
 
-from mediamanager.mediamanager.models.media_managers import (
+from mediamanager.models.media_managers import (
     BaseMediaManagerMedia,
     MediaManagerTag,
     RadarrMedia,

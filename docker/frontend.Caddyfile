@@ -1,0 +1,18 @@
+{
+	auto_https off
+	admin off
+}
+
+:3000 {
+	@apidocs path /docs /openapi.json
+
+	handle @apidocs {
+		uri strip_suffix /
+		reverse_proxy media-manager-backend:9000
+	}
+
+	handle {
+		uri strip_suffix /
+		reverse_proxy media-manager-frontend:3001
+	}
+}

@@ -1,6 +1,6 @@
 import pytest
 
-from mediamanager.mediamanager.services.factory import ServiceFactory
+from mediamanager.services.factory import ServiceFactory
 
 
 @pytest.fixture()

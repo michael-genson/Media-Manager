@@ -11,6 +11,9 @@
     "--enable=W0614"
   ],
   "explorer.fileNesting.enabled": true,
+  "python.analysis.extraPaths": [
+    "mediamanager"
+  ],
   "python.formatting.provider": "black",
   "isort.args": [
     "--profile",
@@ -46,7 +49,8 @@
     "sonarr",
     "Tautulli",
     "tmdb",
-    "tvdb"
+    "tvdb",
+    "vueuse"
   ],
   "python.testing.pytestArgs": [
     "--cov=mediamanager",

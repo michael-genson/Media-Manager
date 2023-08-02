@@ -1,7 +1,7 @@
 import pytest
 
-from mediamanager.mediamanager.clients.ombi import OmbiClient
-from mediamanager.mediamanager.models.ombi import OmbiUser
+from mediamanager.clients.ombi import OmbiClient
+from mediamanager.models.ombi import OmbiUser
 from tests.fixtures.clients.mock_http_client import MockHTTPClient
 from tests.utils.generators import random_datetime, random_email, random_string
 
