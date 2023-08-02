@@ -14,4 +14,3 @@ export interface User {
   email: string;
   isDefaultUser: boolean;
 }
-export interface APIBase {}

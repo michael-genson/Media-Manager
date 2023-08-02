@@ -61,4 +61,3 @@ export interface ExpiredMediaIgnoredItemIn {
 export interface ExpiredMediaIgnoredItems {
   items: ExpiredMediaIgnoredItem[];
 }
-export interface APIBase {}

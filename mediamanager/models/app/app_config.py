@@ -1,7 +1,7 @@
-from .._base import BaseModelMM
+from .._base import APIBase
 
 
-class AppConfig(BaseModelMM):
+class AppConfig(APIBase):
     ombi_url: str | None = None
     ombi_api_key: str | None = None
 

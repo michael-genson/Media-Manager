@@ -66,7 +66,7 @@ def generate_typescript_types() -> None:
 
         try:
             path_as_module = path_to_module(module)
-            generate_typescript_defs(path_as_module, str(out_path), exclude=("BaseModelMM"))  # type: ignore
+            generate_typescript_defs(path_as_module, str(out_path), exclude=("APIBase", "BaseModelMM"))  # type: ignore
         except Exception as e:
             failed_modules.append(module)
             logger.error(f"Module Error: {e}")
