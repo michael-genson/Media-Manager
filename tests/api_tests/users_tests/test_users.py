@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from mediamanager.models.users.users import User
+from mediamanager.models.users.users import Token, User
 from mediamanager.routes import users
 from mediamanager.services.factory import ServiceFactory
 from tests.utils.generators import random_email, random_int, random_string
@@ -114,19 +114,20 @@ def test_replace_default_users(api_client: TestClient, svcs: ServiceFactory, aut
     # only default users can use this route
     r = api_client.post(
         users.default_user_router.url_path_for("replace_default_user"),
-        json={"email": email, "password": password},
+        data={"username": email, "password": password},
         headers=auth_headers,
     )
     assert r.status_code == 401
 
     r = api_client.post(
         users.default_user_router.url_path_for("replace_default_user"),
-        json={"email": email, "password": password},
+        data={"username": email, "password": password},
         headers={"Authorization": f"Bearer {default_users[0].create_token()}"},
     )
     r.raise_for_status()
 
-    created_user = User.parse_obj(r.json())
+    created_user_token = Token.parse_obj(r.json())
+    created_user = svcs.users.get_authenticated_user_from_token(created_user_token.access_token)
     assert created_user.email == email
 
     r = api_client.get(
@@ -134,9 +135,8 @@ def test_replace_default_users(api_client: TestClient, svcs: ServiceFactory, aut
         headers={"Authorization": f"Bearer {created_user.create_token()}"},
     )
     r.raise_for_status()
-    data = r.json()
 
-    assert created_user == User.parse_obj(data)
+    assert created_user == User.parse_obj(r.json())
     assert created_user.is_default_user is False
 
     all_users = svcs.users.get_all_users()
