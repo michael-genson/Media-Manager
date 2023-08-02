@@ -27,6 +27,7 @@
                         />
                         <v-divider />
                         <v-list-item to="/" prepend-icon="custom:logo" title="Home" />
+                        <v-list-item to="/settings" prepend-icon="mdi-cog" title="Settings" />
                         <!-- Log Out -->
                         <v-list-item prepend-icon="mdi-logout" title="Log Out" class="fixedBottom" @click.stop="handleLogout" />
                     </v-list>
