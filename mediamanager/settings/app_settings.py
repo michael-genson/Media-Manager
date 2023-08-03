@@ -27,8 +27,6 @@ class AppSettings(BaseSettings):
     default_user_email: str = "changeme@email.com"
     default_user_password: str = "password"
 
-    admin_email: str = ""
-    """The admin email address to receive notifications"""
     monitored_libraries: list[str] | None = None  # TODO: migrate this to app config
     """A non-empty list of library names (case-insensitive), or `None`"""
 
