@@ -1,5 +1,12 @@
 SHELL := /bin/bash
 
+.PHONY: setup
+setup:
+	poetry install && \
+	cd frontend && \
+	yarn install && \
+	cd ..
+
 .PHONY: backend
 backend:
 	source env/secrets.sh && \
@@ -7,10 +14,10 @@ backend:
 
 .PHONY: frontend
 frontend:
-	cd frontend && yarn run dev --host --port 3001
+	cd frontend && yarn run dev --host --port 3000
 
 frontend-prod:
-	cd frontend && yarn run build && yarn run start -p 3001
+	cd frontend && yarn run build && yarn run start -p 3000
 
 .PHONY: dev
 generate:

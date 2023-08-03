@@ -79,8 +79,8 @@
     // },
     // Use 'postCreateCommand' to run commands after the container is created.
     "onCreateCommand": [
-        "poetry",
-        "install"
+        "make",
+        "setup"
     ],
     "postCreateCommand": [
         "pre-commit",
