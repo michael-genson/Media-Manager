@@ -21,7 +21,7 @@ class AppSecrets(BaseSettings):
 
 class AppSettings(BaseSettings):
     app_title = "MediaManager"
-    app_version = "0.2.1"
+    app_version = "0.2.2"
 
     db_file: str = "/data/media_manager.db"
     default_user_email: str = "changeme@email.com"
