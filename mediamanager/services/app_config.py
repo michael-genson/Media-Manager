@@ -3,9 +3,6 @@ from ..db.models.app.app_config import AppConfig as AppConfigDB
 from ..models.app.app_config import AppConfig
 from ..settings import app_settings
 
-settings = app_settings.AppSettings()
-secrets = app_settings.AppSecrets()
-
 
 class AppConfigService:
     def __init__(self) -> None:
@@ -23,7 +20,8 @@ class AppConfigService:
     def _create_new_config(self) -> AppConfig:
         with session_context() as session:
             # create default config from environment vars
-            default_config = AppConfig(**settings.dict(), **secrets.dict())
+            defaults = app_settings._AppConfigDefaults()
+            default_config = AppConfig(**defaults.dict())
             config = AppConfigDB(**default_config.dict())
 
             session.add(config)
