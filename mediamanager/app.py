@@ -3,22 +3,21 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from .settings import _app_settings, scheduler_settings
+from .settings import app_settings, scheduler_settings
 
 ### App Setup ###
-APP_DIR = _app_settings.APP_DIR
-CONFIG_DIR = _app_settings.CONFIG_DIR
-STATIC_DIR = _app_settings.STATIC_DIR
+APP_DIR = app_settings.APP_DIR
+CONFIG_DIR = app_settings.CONFIG_DIR
+STATIC_DIR = app_settings.STATIC_DIR
 
 schedules = scheduler_settings.SchedulerSettings()
-secrets = _app_settings.AppSecrets()
-settings = _app_settings.AppSettings()
+settings = app_settings.AppSettings()
 
 
-expired_media_settings = _app_settings.ExpiredMediaSettings()
+expired_media_settings = app_settings.ExpiredMediaSettings()
 
 app = FastAPI(title=settings.app_title, version=settings.app_version)
-app.mount("/static", StaticFiles(directory=_app_settings.STATIC_DIR), name="static")
+app.mount("/static", StaticFiles(directory=app_settings.STATIC_DIR), name="static")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3001"],

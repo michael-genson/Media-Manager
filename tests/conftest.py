@@ -12,9 +12,12 @@ from mediamanager.db import db_setup, models as db_models  # noqa:  E402
 from mediamanager.models.app.app_config import AppConfig  # noqa:  E402
 from mediamanager.services.app_config import AppConfigService  # noqa:  E402
 from mediamanager.services.smtp import SMTPService  # noqa:  E402
+from mediamanager.settings import app_settings  # noqa:  E402
 
 from .fixtures import *  # noqa:  E402, F403
 from .utils.generators import random_email, random_string, random_url  # noqa:  E402
+
+settings = app_settings.AppSettings()
 
 
 def do_nothing(*args, **kwargs):
@@ -53,7 +56,7 @@ def setup_db():
     yield
 
     # delete temp db
-    os.unlink(app.settings.db_file)
+    os.unlink(settings.db_file)
 
 
 @pytest.fixture(scope="function", autouse=True)

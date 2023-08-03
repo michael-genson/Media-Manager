@@ -3,7 +3,7 @@ import asyncio
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Path, Query, status
 
 from .. import security
-from ..app import expired_media_settings, schedules, settings
+from ..app import expired_media_settings, schedules
 from ..models.email import ExpiredMediaEmail, ExpiredMediaEmailFailure
 from ..models.expired_media.expired_media import ExpiredMedia
 from ..models.expired_media.ignored_items import ExpiredMediaIgnoredItemIn, ExpiredMediaIgnoredItems
@@ -12,8 +12,11 @@ from ..models.tautulli import TautulliMedia
 from ..scheduler import cron, scheduler
 from ..services.expired_media import ExpiredMediaIgnoreListManager
 from ..services.factory import ServiceFactory
+from ..settings import app_settings
 
 _ignore_list_manager = ExpiredMediaIgnoreListManager()
+settings = app_settings.AppSettings()
+
 router = APIRouter(
     prefix="/api/expired-media", tags=["Expired Media"], dependencies=[Depends(security.get_current_user)]
 )
@@ -81,6 +84,7 @@ async def get_expired_media(
 @scheduler.task(cron(schedules.scheduler_expired_media))
 async def _send_notification_of_expired_media() -> None:
     svcs = ServiceFactory()
+    admins = svcs.users.get_all_users(is_default_user=False)  # TODO: filter this to only admins
 
     try:
         expired_media = await get_expired_media(max_results=-1, ignore_http_errors=True)
@@ -88,14 +92,17 @@ async def _send_notification_of_expired_media() -> None:
             return
 
         csv_file = svcs.data_exporter.create_csv([media for media in expired_media])
-        msg = ExpiredMediaEmail().message(
-            svcs.app_config.config.smtp_sender, settings.admin_email, len(expired_media), csv_file
-        )
-        svcs.smtp.send(msg)
+        msgs = [
+            ExpiredMediaEmail().message(svcs.app_config.config.smtp_sender, admin.email, len(expired_media), csv_file)
+            for admin in admins
+        ]
+
+        await svcs.smtp.send_all(msgs)
 
     except Exception:
-        msg = ExpiredMediaEmailFailure().message(svcs.app_config.config.smtp_sender, settings.admin_email)
-        svcs.smtp.send(msg)
+        msgs = [ExpiredMediaEmailFailure().message(svcs.app_config.config.smtp_sender, admin.email) for admin in admins]
+
+        await svcs.smtp.send_all(msgs)
         raise
 
 

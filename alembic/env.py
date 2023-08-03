@@ -4,8 +4,10 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from mediamanager.db._model_base import SqlAlchemyBase
-from mediamanager.app import settings
+from mediamanager.settings import app_settings
 from mediamanager.db.models import *
+
+settings = app_settings.AppSettings()
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

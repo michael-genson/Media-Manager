@@ -7,7 +7,7 @@ from .exceptions import (
     UserAuthenticationError,
     UserDoesntExistError,
 )
-from .users import Token, User
+from .users import PrivateUser, Token, User
 
 __all__ = [
     "DefaultUserError",
@@ -16,6 +16,7 @@ __all__ = [
     "UserAlreadyExistsError",
     "UserAuthenticationError",
     "UserDoesntExistError",
+    "PrivateUser",
     "Token",
     "User",
 ]

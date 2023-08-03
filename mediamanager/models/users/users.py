@@ -3,8 +3,10 @@ from datetime import datetime, timedelta
 from jose import jwt
 from pydantic import BaseModel
 
-from ...app import secrets
+from ...settings import app_settings
 from .._base import APIBase
+
+secrets = app_settings.AppSecrets()
 
 
 class Token(BaseModel):
@@ -31,7 +33,7 @@ class User(APIBase):
         return jwt.encode(data, secrets.db_secret_key, algorithm=secrets.db_algorithm)
 
 
-class _PrivateUser(User):
+class PrivateUser(User):
     """Used only for verifying passwords"""
 
     password: str

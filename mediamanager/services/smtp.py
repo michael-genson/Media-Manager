@@ -1,5 +1,7 @@
+import asyncio
 from email.message import EmailMessage
-from smtplib import SMTP
+
+from aiosmtplib import SMTP
 
 
 class SMTPService:
@@ -10,11 +12,11 @@ class SMTPService:
         self.password = password
         self.use_tls = use_tls
 
-    def send(self, msg: EmailMessage) -> None:
+    async def send_all(self, msgs: list[EmailMessage]) -> None:
         smtp = SMTP(self.server, port=self.port)
+        async with smtp:
+            await smtp.login(self.username, self.password)
+            await asyncio.gather(*[smtp.send_message(msg) for msg in msgs])
 
-        smtp.ehlo()
-        smtp.starttls()
-
-        smtp.login(self.username, self.password)
-        smtp.send_message(msg)
+    async def send(self, msg: EmailMessage) -> None:
+        return await self.send_all([msg])
