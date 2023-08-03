@@ -8,11 +8,11 @@
 
 	handle @apidocs {
 		uri strip_suffix /
-		reverse_proxy media-manager-backend:9000
+		reverse_proxy http://media-manager-backend:9000
 	}
 
 	handle {
 		uri strip_suffix /
-		reverse_proxy media-manager-frontend:3001
+		reverse_proxy http://media-manager-frontend:3001
 	}
 }
