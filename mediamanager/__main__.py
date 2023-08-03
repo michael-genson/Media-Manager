@@ -6,9 +6,12 @@ from types import FrameType
 
 import uvicorn
 
-from mediamanager.app import app, settings  # type: ignore
-from mediamanager.db.db_setup import init_db  # type: ignore
-from mediamanager.scheduler import scheduler  # type: ignore
+from mediamanager.app import app
+from mediamanager.db.db_setup import init_db
+from mediamanager.scheduler import scheduler
+from mediamanager.settings import app_settings
+
+settings = app_settings.AppSettings()
 
 
 class Server(uvicorn.Server):

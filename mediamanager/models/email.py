@@ -4,9 +4,11 @@ from email.message import EmailMessage
 
 from fastapi.templating import Jinja2Templates
 
-from ..app import STATIC_DIR, settings
+from ..app import STATIC_DIR
+from ..settings import app_settings
 
 email_templates = Jinja2Templates(directory=f"{STATIC_DIR}/email_templates")
+settings = app_settings.AppSettings()
 
 
 class EmailAttachment:

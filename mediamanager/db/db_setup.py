@@ -13,9 +13,11 @@ from alembic import command, script
 from alembic.config import Config
 from alembic.runtime import migration
 
-from ..app import APP_DIR, settings
+from ..app import APP_DIR
+from ..settings import app_settings
 
 logger = getLogger("init_db")
+settings = app_settings.AppSettings()
 
 # set up engine
 engine = create_engine(settings.db_url, echo=False)

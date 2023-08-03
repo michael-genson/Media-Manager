@@ -3,7 +3,7 @@ import asyncio
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Path, Query, status
 
 from .. import security
-from ..app import expired_media_settings, schedules, settings
+from ..app import expired_media_settings, schedules
 from ..models.email import ExpiredMediaEmail, ExpiredMediaEmailFailure
 from ..models.expired_media.expired_media import ExpiredMedia
 from ..models.expired_media.ignored_items import ExpiredMediaIgnoredItemIn, ExpiredMediaIgnoredItems
@@ -12,8 +12,11 @@ from ..models.tautulli import TautulliMedia
 from ..scheduler import cron, scheduler
 from ..services.expired_media import ExpiredMediaIgnoreListManager
 from ..services.factory import ServiceFactory
+from ..settings import app_settings
 
 _ignore_list_manager = ExpiredMediaIgnoreListManager()
+settings = app_settings.AppSettings()
+
 router = APIRouter(
     prefix="/api/expired-media", tags=["Expired Media"], dependencies=[Depends(security.get_current_user)]
 )

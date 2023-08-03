@@ -2,7 +2,6 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.exc import IntegrityError
 
-from ..app import secrets
 from ..db.db_setup import session_context
 from ..db.models.users.users import UserInDB
 from ..models.users.exceptions import (
@@ -12,9 +11,11 @@ from ..models.users.exceptions import (
     UserAlreadyExistsError,
     UserDoesntExistError,
 )
-from ..models.users.users import User, _PrivateUser
+from ..models.users.users import PrivateUser, User
+from ..settings import app_settings
 
 _pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+secrets = app_settings.AppSecrets()
 
 
 class UserService:
@@ -22,15 +23,15 @@ class UserService:
     def _sanitize_email(cls, email: str) -> str:
         return email.strip().lower()
 
-    def get_private_user(self, email: str) -> _PrivateUser | None:
+    def get_private_user(self, email: str) -> PrivateUser | None:
         """Gets an unauthenticated private user, if they exist"""
 
         with session_context() as session:
             user_in_db = session.query(UserInDB).filter_by(email=self._sanitize_email(email)).first()
 
-        return _PrivateUser.from_orm(user_in_db) if user_in_db else None
+        return PrivateUser.from_orm(user_in_db) if user_in_db else None
 
-    def authenticate_user(self, user: _PrivateUser, password: str) -> User:
+    def authenticate_user(self, user: PrivateUser, password: str) -> User:
         """Returns a validated user only if the provided password is correct, otherwise raises `InvalidPasswordError`"""
 
         if not _pwd_context.verify(password, user.password):
