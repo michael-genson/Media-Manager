@@ -19,7 +19,7 @@ const app = createApp(App)
 
 // Axios
 axios.defaults.withCredentials = true;
-axios.defaults.baseURL = "http://localhost:9000/";
+axios.defaults.baseURL = process.env.API_URL || "http://localhost:9000/";
 
 // Vuetify
 const defaultTheme: ThemeDefinition = {
