@@ -16,6 +16,8 @@ services:
     build:
       context: ../
       dockerfile: ./docker/frontend.Dockerfile
+    environment:
+      - API_URL=http://media-manager-backend:9000
     ports:
       - 3000:3000
     volumes:

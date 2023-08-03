@@ -4,11 +4,17 @@
 }
 
 :3000 {
+	@api path /api/*
 	@apidocs path /docs /openapi.json
+
+	handle @api {
+		uri strip_suffix /
+		reverse_proxy {$API_URL}
+	}
 
 	handle @apidocs {
 		uri strip_suffix /
-		reverse_proxy http://media-manager-backend:9000
+		reverse_proxy {$API_URL}
 	}
 
 	handle {

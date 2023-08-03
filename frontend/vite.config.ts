@@ -16,7 +16,14 @@ export default defineConfig({
   server: {
     fs: {
       // Allow serving files from one level up to the project root
-      allow: ['..'],
+      allow: [".."],
+    },
+    proxy: {
+      "/api": {
+        target: "http://0.0.0.0:9000",
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 })
