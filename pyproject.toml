@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "MediaManager"
-version = "0.2.2"
+version = "0.2.3"
 description = "Media Management Tools"
 authors = ["Michael Genson <71845777+michael-genson@users.noreply.github.com>"]
 license = "GNU"
