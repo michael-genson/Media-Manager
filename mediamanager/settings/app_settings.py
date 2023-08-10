@@ -1,5 +1,6 @@
 import os
 import pathlib
+import secrets
 from typing import TypeVar
 
 from pydantic import BaseSettings, validator
@@ -11,19 +12,38 @@ APP_DIR = str(pathlib.Path(__file__).parent.parent.resolve())
 CONFIG_DIR = "/data"
 STATIC_DIR = os.path.join(APP_DIR, "static")
 
-DEFAULT_SECRET_KEY = "X-UNSAFE-KEY"
 
+class AppSecrets:
+    def __init__(self) -> None:
+        self._db_secret_key: str | None = None
+        self.db_algorithm: str = "HS256"
 
-class AppSecrets(BaseSettings):
-    db_secret_key: str = DEFAULT_SECRET_KEY  # TODO: warn if using
-    db_algorithm: str = "HS256"
+    @property
+    def db_secret_key(self) -> str:
+        if self._db_secret_key is None:
+            fp = os.path.join(CONFIG_DIR, ".secret")
+            try:
+                with open(fp) as f:
+                    self._db_secret_key = f.read()
+            except FileNotFoundError:
+                with open(fp, "w") as f:
+                    new_secret = secrets.token_hex(32)
+                    f.write(new_secret)
+                self._db_secret_key = new_secret
+
+        return self._db_secret_key
+
+    @validator("_db_secret_key", pre=True, always=True)
+    def ignore_environment(cls, _) -> None:
+        return None
 
 
 class AppSettings(BaseSettings):
     app_title = "MediaManager"
     app_version = "0.2.2"
+    debug = False
 
-    db_file: str = "/data/media_manager.db"
+    db_file: str = os.path.join(CONFIG_DIR, "media_manager.db")
     default_user_email: str = "changeme@email.com"
     default_user_password: str = "password"
 
