@@ -1,18 +1,24 @@
 import os
 
+import pytest
+from fastapi.testclient import TestClient
+from pytest import MonkeyPatch
+
+from mediamanager.settings import app_settings
+
 # force app to use temp database
 os.environ["db_file"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), "pytest_db.db")
 
-import pytest  # noqa:  E402
-from fastapi.testclient import TestClient  # noqa:  E402
-from pytest import MonkeyPatch  # noqa:  E402
+# inject fake secret
+mp = MonkeyPatch()
+mp.setattr(app_settings.AppSecrets, "db_secret_key", "pytest-secret-key")
 
 from mediamanager import app  # noqa:  E402
 from mediamanager.db import db_setup, models as db_models  # noqa:  E402
 from mediamanager.models.app.app_config import AppConfig  # noqa:  E402
 from mediamanager.services.app_config import AppConfigService  # noqa:  E402
 from mediamanager.services.smtp import SMTPService  # noqa:  E402
-from mediamanager.settings import app_settings  # noqa:  E402
+
 
 from .fixtures import *  # noqa:  E402, F403
 from .utils.generators import random_email, random_string, random_url  # noqa:  E402
@@ -76,7 +82,6 @@ def clear_db():
 
 @pytest.fixture(scope="session", autouse=True)
 def mock_services():
-    mp = MonkeyPatch()
     mp.setattr(SMTPService, "send", do_nothing)
     yield
 
