@@ -13,6 +13,9 @@ STATIC_DIR = app_settings.STATIC_DIR
 schedules = scheduler_settings.SchedulerSettings()
 settings = app_settings.AppSettings()
 
+secrets = app_settings.AppSecrets()
+secrets.db_secret_key  # force generation of secret key on a new instance
+
 
 expired_media_settings = app_settings.ExpiredMediaSettings()
 
