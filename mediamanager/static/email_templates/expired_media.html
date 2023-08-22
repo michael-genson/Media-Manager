@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block body %}
 
-<p>Please find your expired media report attached. There are {{ media_count }} items to review.</p>
+<p>Please find your expired media report attached. {{ "There is one item" if media_count == 1 else "There are {0} items".format(media_count)  }} to review.</p>
 
 {% endblock %}
