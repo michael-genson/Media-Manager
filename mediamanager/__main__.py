@@ -31,20 +31,34 @@ def setup():
 async def main():
     setup()
 
-    server = Server(
-        config=uvicorn.Config(
-            app,
-            workers=settings.uvicorn_workers,
-            loop="asyncio",
+    if settings.debug:
+        uvicorn.run(
+            "mediamanager.app:app",
+            workers=1,
             host="0.0.0.0",
             port=int(os.environ.get("APP_PORT", 9000)),
+            reload=True,
+            reload_delay=2,
+            log_level="info",
+            use_colors=True,
+            forwarded_allow_ips="*",
         )
-    )
 
-    api = asyncio.create_task(server.serve())
-    sched = asyncio.create_task(scheduler.serve())
+    else:
+        server = Server(
+            config=uvicorn.Config(
+                app,
+                workers=settings.uvicorn_workers,
+                loop="asyncio",
+                host="0.0.0.0",
+                port=int(os.environ.get("APP_PORT", 9000)),
+            )
+        )
 
-    await asyncio.wait([sched, api])
+        api = asyncio.create_task(server.serve())
+        sched = asyncio.create_task(scheduler.serve())
+
+        await asyncio.wait([sched, api])
 
 
 if __name__ == "__main__":
