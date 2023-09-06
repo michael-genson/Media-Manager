@@ -1,6 +1,5 @@
 import asyncio
 from datetime import UTC, datetime
-from typing import Awaitable
 
 from fastapi import HTTPException
 
@@ -56,11 +55,14 @@ class TautulliService:
     async def _get_expired_media(
         self, library: TautulliLibrary, summary: TautulliMediaSummary, ignore_http_errors: bool = False
     ) -> TautulliMedia | None:
-        detail = await self.get_media_detail(summary.rating_key, ignore_http_errors)
-        if not detail:
-            return None
+        try:
+            detail = await self.get_media_detail(summary.rating_key, ignore_http_errors)
+            if not detail:
+                return None
 
-        return TautulliMedia(library=library, media_summary=summary, media_detail=detail)
+            return TautulliMedia(library=library, media_summary=summary, media_detail=detail)
+        except asyncio.exceptions.CancelledError:
+            return None
 
     async def get_all_expired_media(
         self,
@@ -87,7 +89,7 @@ class TautulliService:
         if not self._all_libraries:
             self._all_libraries = await self._client.get_libraries()
 
-        expired_media_futures: list[Awaitable[TautulliMedia | None]] = []
+        expired_media_tasks: list[asyncio.Task[TautulliMedia | None]] = []
         for library in self._all_libraries:
             if not library.is_active:
                 continue
@@ -109,8 +111,23 @@ class TautulliService:
                 if not self._is_expired(min_age, last_watched_threshold, summary):
                     continue
 
-                expired_media_futures.append(self._get_expired_media(library, summary, ignore_http_errors))
-                if max_results > 0 and len(expired_media_futures) >= max_results:
-                    break
+                expired_media_tasks.append(
+                    asyncio.create_task(self._get_expired_media(library, summary, ignore_http_errors))
+                )
 
-        return [expired_media for expired_media in await asyncio.gather(*expired_media_futures) if expired_media]
+        completed_futures: list[TautulliMedia] = []
+        for task in asyncio.as_completed(expired_media_tasks):
+            expired_media = await task
+            if not expired_media:
+                continue
+
+            completed_futures.append(expired_media)
+            if max_results > 0 and len(completed_futures) >= max_results:
+                # since we've gotten enough media, cancel remaining tasks
+                for remaining_task in expired_media_tasks:
+                    remaining_task.cancel()
+
+        if max_results > 0:
+            return completed_futures[:max_results]
+        else:
+            return completed_futures
