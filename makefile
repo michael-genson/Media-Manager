@@ -10,6 +10,7 @@ setup:
 .PHONY: backend
 backend:
 	source env/secrets.sh && \
+	export DEBUG=true && \
 	python mediamanager
 
 .PHONY: frontend

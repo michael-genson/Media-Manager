@@ -21,7 +21,9 @@ class AppSecrets:
     @property
     def db_secret_key(self) -> str:
         if self._db_secret_key is None:
-            fp = os.path.join(CONFIG_DIR, ".secret")
+            fp = pathlib.Path(os.path.join(CONFIG_DIR, ".secret"))
+            fp.parent.mkdir(parents=True, exist_ok=True)
+
             try:
                 with open(fp) as f:
                     self._db_secret_key = f.read()
