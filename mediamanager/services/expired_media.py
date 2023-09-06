@@ -42,7 +42,7 @@ class ExpiredMediaIgnoreListManager:
         media.name = detail.title
         return media
 
-    async def add(self, media: list[ExpiredMediaIgnoredItemIn]) -> None:
+    async def add(self, media: list[ExpiredMediaIgnoredItemIn]) -> list[ExpiredMediaIgnoredItem]:
         svcs = ServiceFactory()
         items_to_add_futures = [self._process_expired_media_ignored_item(svcs, new_media) for new_media in media]
         new_ignored_items: list[ExpiredMediaIgnoredItemIn] = await asyncio.gather(*items_to_add_futures)
@@ -65,18 +65,28 @@ class ExpiredMediaIgnoreListManager:
             session.execute(update(ExpiredMediaIgnoredItemDB), update_data)
 
             # since we pop off the existing data, the remaining values are new items
-            session.add_all(
-                [ExpiredMediaIgnoredItemDB(**new_item.dict()) for new_item in new_items_by_rating_key.values()]
-            )
+            items = [ExpiredMediaIgnoredItemDB(**new_item.dict()) for new_item in new_items_by_rating_key.values()]
+            session.add_all(items)
             session.commit()
 
-    def delete(self, rating_keys: list[str]) -> None:
+            items_out: list[ExpiredMediaIgnoredItem] = []
+            for item in items:
+                session.refresh(item)
+                items_out.append(ExpiredMediaIgnoredItem.from_orm(item))
+
+            return items_out
+
+    def delete(self, rating_keys: list[str]) -> list[ExpiredMediaIgnoredItem]:
         with session_context() as session:
-            for item in (
+            items_to_delete = (
                 session.query(ExpiredMediaIgnoredItemDB)
                 .filter(ExpiredMediaIgnoredItemDB.rating_key.in_(rating_keys))
                 .all()
-            ):
+            )
+
+            deleted_items = [ExpiredMediaIgnoredItem.from_orm(item) for item in items_to_delete]
+            for item in items_to_delete:
                 session.delete(item)
 
             session.commit()
+            return deleted_items

@@ -6,7 +6,11 @@ from .. import security
 from ..app import expired_media_settings, schedules
 from ..models.email import ExpiredMediaEmail, ExpiredMediaEmailFailure
 from ..models.expired_media.expired_media import ExpiredMedia
-from ..models.expired_media.ignored_items import ExpiredMediaIgnoredItemIn, ExpiredMediaIgnoredItems
+from ..models.expired_media.ignored_items import (
+    ExpiredMediaIgnoredItem,
+    ExpiredMediaIgnoredItemIn,
+    ExpiredMediaIgnoredItems,
+)
 from ..models.ombi import OmbiUser
 from ..models.tautulli import TautulliMedia
 from ..scheduler import cron, scheduler
@@ -116,21 +120,21 @@ async def get_ignore_list() -> ExpiredMediaIgnoredItems:
     return _ignore_list_manager.get_all()
 
 
-@router.post("/ignore-list/bulk", status_code=status.HTTP_201_CREATED)
-async def add_ignored_media_bulk(media: list[ExpiredMediaIgnoredItemIn]) -> None:
-    await _ignore_list_manager.add(media)
+@router.post("/ignore-list/bulk", status_code=status.HTTP_201_CREATED, response_model=ExpiredMediaIgnoredItems)
+async def add_ignored_media_bulk(media: list[ExpiredMediaIgnoredItemIn]) -> ExpiredMediaIgnoredItems:
+    return ExpiredMediaIgnoredItems(items=await _ignore_list_manager.add(media))
 
 
-@router.post("/ignore-list", status_code=status.HTTP_201_CREATED)
-async def add_ignored_media(media: ExpiredMediaIgnoredItemIn = Depends()) -> None:
-    return await add_ignored_media_bulk([media])
+@router.post("/ignore-list", status_code=status.HTTP_201_CREATED, response_model=ExpiredMediaIgnoredItem)
+async def add_ignored_media(media: ExpiredMediaIgnoredItemIn = Depends()) -> ExpiredMediaIgnoredItem:
+    return (await add_ignored_media_bulk([media])).items[0]
 
 
-@router.delete("/ignore-list/bulk", status_code=status.HTTP_200_OK)
-async def delete_ignored_media_bulk(rating_keys: list[str]) -> None:
-    _ignore_list_manager.delete(rating_keys)
+@router.delete("/ignore-list/bulk", status_code=status.HTTP_200_OK, response_model=ExpiredMediaIgnoredItems)
+async def delete_ignored_media_bulk(rating_keys: list[str]) -> ExpiredMediaIgnoredItems:
+    return ExpiredMediaIgnoredItems(items=_ignore_list_manager.delete(rating_keys))
 
 
-@router.delete("/ignore-list/{ratingKey}", status_code=status.HTTP_200_OK)
-async def delete_ignored_media(rating_key: str = Path(..., alias="ratingKey")) -> None:
-    return await delete_ignored_media_bulk([rating_key])
+@router.delete("/ignore-list/{ratingKey}", status_code=status.HTTP_200_OK, response_model=ExpiredMediaIgnoredItem)
+async def delete_ignored_media(rating_key: str = Path(..., alias="ratingKey")) -> ExpiredMediaIgnoredItem:
+    return (await delete_ignored_media_bulk([rating_key])).items[0]
