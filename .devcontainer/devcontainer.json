@@ -17,10 +17,6 @@
     "runArgs": [
         "--network=host"
     ],
-    "mounts": [
-        // mount /env to /data
-        "source=${localWorkspaceFolder}/env,target=/data,type=bind,consistency=cached",
-    ],
     // Configure tool-specific properties.
     "customizations": {
         // Configure properties specific to VS Code.
