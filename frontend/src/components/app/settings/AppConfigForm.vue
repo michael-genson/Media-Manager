@@ -56,7 +56,7 @@
                         type="password"
                         density="compact"
                     />
-                    <v-divider />
+                    <v-divider class="mt-0" />
                     <v-select
                         v-model="selectedLibraryChoices"
                         label="Monitored Libraries"
