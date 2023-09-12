@@ -73,7 +73,7 @@ async def get_expired_media(
     tautulli_expired_media = await svcs.tautulli.get_all_expired_media(
         expired_media_settings.expired_media_min_age,
         expired_media_settings.expired_media_last_watched_threshold,
-        settings.monitored_libraries,
+        svcs.app_config.config.monitored_library_ids,
         [item.rating_key for item in ignored_items] if ignored_items else None,
         max_results,
         ignore_http_errors,

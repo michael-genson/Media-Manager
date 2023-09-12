@@ -49,14 +49,7 @@ class AppSettings(BaseSettings):
     default_user_email: str = "changeme@email.com"
     default_user_password: str = "password"
 
-    monitored_libraries: list[str] | None = None  # TODO: migrate this to app config
-    """A non-empty list of library names (case-insensitive), or `None`"""
-
     uvicorn_workers: int = 1
-
-    @validator("monitored_libraries")
-    def monitored_libraries_case_insensitive(cls, v: list[str] | None) -> list[str] | None:
-        return [elem.lower() for elem in v] if v else None
 
     @property
     def db_url(self):

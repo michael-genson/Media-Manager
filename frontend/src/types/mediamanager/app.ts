@@ -6,6 +6,7 @@
 */
 
 export interface AppConfig {
+  monitoredLibraryIds?: string[];
   ombiUrl?: string;
   ombiApiKey?: string;
   qbittorrentUrl?: string;
@@ -23,7 +24,3 @@ export interface AppConfig {
   smtpUsername?: string;
   smtpPassword?: string;
 }
-export interface GenericCollection {
-  items: APIBase[];
-}
-export interface APIBase {}

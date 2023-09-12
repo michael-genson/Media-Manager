@@ -17,6 +17,7 @@ from mediamanager.models.manage_media.tautulli import (
     TautulliMediaSummary,
 )
 from mediamanager.routes import expired_media as expired_media_routes
+from mediamanager.services.factory import ServiceFactory
 from tests.fixtures.databases.media_managers.mock_media_manager_database import RadarrMockDatabase
 from tests.fixtures.databases.tautulli.mock_tautulli_database import TautulliMockDatabase
 from tests.utils.generators import random_datetime, random_int, random_string
@@ -139,3 +140,35 @@ def test_get_expired_media_with_media(
             assert expired_movie.user == user
         break
     assert found
+
+
+def test_get_expired_media_monitored_libraries(
+    api_client: TestClient,
+    auth_headers: dict,
+    tautulli_movies: list[TautulliMedia],
+    tautulli_shows: list[TautulliMedia],
+    svcs: ServiceFactory,
+):
+    # fetch only movies, not shows
+    movie_library_ids = {movie.library.section_id for movie in tautulli_movies}
+    show_library_ids = {show.library.section_id for show in tautulli_shows}
+    assert movie_library_ids
+    assert show_library_ids
+    assert movie_library_ids != show_library_ids
+
+    svcs.app_config.patch_config(monitored_library_ids=list(movie_library_ids))
+    with freeze_time(datetime.now() + timedelta(days=random_int(365 * 10, 365 * 20))):
+        response = api_client.get(
+            expired_media_routes.router.url_path_for("get_expired_media"),
+            headers=auth_headers,
+        )
+
+    response.raise_for_status()
+    expired_media = [ExpiredMedia.parse_obj(data) for data in response.json()]
+    fetched_library_ids = {media.media.library.section_id for media in expired_media}
+    assert fetched_library_ids
+
+    for id in movie_library_ids:
+        assert id in fetched_library_ids
+    for id in show_library_ids:
+        assert id not in fetched_library_ids

@@ -1,3 +1,5 @@
+import json
+
 from ..db.db_setup import session_context
 from ..db.models.app.app_config import AppConfig as AppConfigDB
 from ..models.app.app_config import AppConfig
@@ -22,7 +24,7 @@ class AppConfigService:
             # create default config from environment vars
             defaults = app_settings._AppConfigDefaults()
             default_config = AppConfig(**defaults.dict())
-            config = AppConfigDB(**default_config.dict())
+            config = AppConfigDB(**default_config.dict(exclude={"monitored_library_ids"}))
 
             session.add(config)
             session.commit()
@@ -33,6 +35,14 @@ class AppConfigService:
             config_db = session.query(AppConfigDB).first()
             if not config_db:
                 raise Exception("config does not exist")
+
+            # encode monitored_library_ids as a JSON string, or remove it if explicitly passed to kwargs as null/empty
+            if "monitored_library_ids" in kwargs:
+                monitored_library_ids: list[str] | None = kwargs.pop("monitored_library_ids")
+                if not monitored_library_ids:
+                    kwargs["monitored_library_ids_json"] = None
+                else:
+                    kwargs["monitored_library_ids_json"] = json.dumps(monitored_library_ids)
 
             config_db.update(**kwargs)
             session.commit()

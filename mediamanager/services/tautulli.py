@@ -84,21 +84,18 @@ class TautulliService:
 
         :param int min_age: The minimum age in days to consider media for expiration
         :param int last_watched_threshold: The number of days since media was last watched to be considered expired
-        :param list[str] | None monitored_libraries: Optional list of library names to consider for expired media
+        :param list[str] | None monitored_libraries: Optional list of library ids to consider for expired media
         :param list[str] | None ignored_rating_keys: Optional `rating_key` list to ignore
         :param int max_results: The maximum number of media items to return. Set to -1 to bypass
         :param bool ignore_http_errors: If set, HTTP errors will be skipped over when fetching media details
         """
-        if monitored_libraries:
-            monitored_libraries = [_.lower() for _ in monitored_libraries]
-
         expired_media_tasks: list[asyncio.Task[TautulliMedia | None]] = []
         for library in await self.get_all_libraries():
             if not library.is_active:
                 continue
             if not library.count:
                 continue
-            if monitored_libraries and library.section_name.lower() not in monitored_libraries:
+            if monitored_libraries and library.section_id not in monitored_libraries:
                 continue
 
             media_summaries = await self._client.get_library_media_summaries(
