@@ -56,6 +56,16 @@
                         type="password"
                         density="compact"
                     />
+                    <v-divider />
+                    <v-select
+                        v-model="selectedLibraryChoices"
+                        label="Monitored Libraries"
+                        :items="libraryChoices"
+                        item-title="sectionName"
+                        multiple
+                        chips
+                    >
+                    </v-select>
                 </v-card-text>
             </v-card>
             <v-card :class="attrs.class.card" :style="attrs.style.card">
@@ -155,6 +165,8 @@ import { computed, ref } from "vue";
 
 import { useApi } from "@/services/backend/client";
 import type { AppConfig } from "@/types/mediamanager/app";
+import type { GenericCollection } from "@/types/non_generated/api";
+import type { TautulliLibrary } from "@/types/mediamanager/expired-media";
 import { useDisplay } from "vuetify";
 
 const emit = defineEmits(["isReady"]);
@@ -168,6 +180,9 @@ const isMobile = ref(display.smAndDown);
 
 const showFail = ref(false);
 const showSuccess = ref(false);
+
+const libraryChoices = ref<TautulliLibrary[]>([]);
+const selectedLibraryChoices = ref<string[]>([]);
 
 const attrs = computed(() => {
     return isMobile.value ? {
@@ -187,18 +202,29 @@ const attrs = computed(() => {
     }
 })
 
-async function refreshConfig() {
-    const { data } = await api.get<AppConfig>("/api/config")
-    if (!data) {
-        showFail.value = true;
-        return;
-    }
-
-    appConfig.value = data;
-}
-
 async function handleSubmit() {
     isLoading.value = true;
+
+    // populate monitoredLibraryIds
+    const libraryChoicesByName = new Map<string, TautulliLibrary>();
+    libraryChoices.value.forEach((choice) => {
+        libraryChoicesByName.set(choice.sectionName, choice);
+    })
+
+    if (selectedLibraryChoices.value?.length) {
+        const chosenIds: string[] = [];
+        selectedLibraryChoices.value.forEach((choice) => {
+            const choiceId = libraryChoicesByName.get(choice)?.sectionId;
+            if (choiceId) {
+                chosenIds.push(choiceId);
+            };
+        });
+
+        appConfig.value.monitoredLibraryIds = chosenIds;
+    } else {
+        appConfig.value.monitoredLibraryIds = [];
+    }
+
     const { data } = await api.put<AppConfig>("/api/config", appConfig.value);
     if (data) {
         appConfig.value = data;
@@ -210,5 +236,49 @@ async function handleSubmit() {
     isLoading.value = false;
 }
 
-refreshConfig().then( () => { isLoading.value = false; emit("isReady"); })
+async function refreshConfig() {
+    const { data } = await api.get<AppConfig>("/api/config")
+    if (!data) {
+        showFail.value = true;
+        return;
+    }
+
+    appConfig.value = data;
+}
+
+async function refreshLibraryChoices() {
+    const { data } = await api.get<GenericCollection<TautulliLibrary>>("/api/manage-media/libraries");
+    if (!data) {
+        return;
+    }
+
+    libraryChoices.value = data.items.filter((choice) => choice.sectionType !== "unknown" && choice.isActive).sort(
+        (a, b) => {
+            return a.sectionName > b.sectionName ? 1 : -1;
+        }
+    );
+}
+
+async function refreshAll() {
+    await Promise.all([
+        refreshConfig(),
+        refreshLibraryChoices(),
+    ]);
+
+    if (!(appConfig.value?.monitoredLibraryIds?.length && libraryChoices.value?.length)) {
+        return;
+    }
+
+    // populate selected choices
+    const choices: string[] = [];
+    libraryChoices.value.forEach((choice) => {
+        if (appConfig.value.monitoredLibraryIds?.includes(choice.sectionId)) {
+            choices.push(choice.sectionName);
+        };
+    });
+
+    selectedLibraryChoices.value = choices;
+}
+
+refreshAll().then( () => { isLoading.value = false; emit("isReady"); })
 </script>
