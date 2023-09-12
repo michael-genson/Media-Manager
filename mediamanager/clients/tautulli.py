@@ -1,4 +1,4 @@
-from ..models.tautulli import OrderDirection, TautulliLibrary, TautulliMediaDetail, TautulliMediaSummary
+from ..models.manage_media.tautulli import OrderDirection, TautulliLibrary, TautulliMediaDetail, TautulliMediaSummary
 from ._base import BaseHTTPClient
 
 

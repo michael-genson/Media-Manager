@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from fastapi import HTTPException
 
 from ..clients.tautulli import TautulliClient
-from ..models.tautulli import (
+from ..models.manage_media.tautulli import (
     OrderDirection,
     TautulliLibrary,
     TautulliMedia,

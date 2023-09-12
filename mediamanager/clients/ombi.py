@@ -1,4 +1,4 @@
-from ..models.ombi import OmbiUser
+from ..models.manage_media.ombi import OmbiUser
 from ._base import BaseHTTPClient
 
 

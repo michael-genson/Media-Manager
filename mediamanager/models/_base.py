@@ -1,6 +1,5 @@
 from typing import ClassVar, TypeVar
 
-from humps.main import camelize
 from pydantic import BaseModel, root_validator
 from pydantic.fields import ModelField
 
@@ -82,9 +81,3 @@ class BaseModelMM(BaseModel):
             val = getattr(src, field)
             if field in self.__fields__ and (val is not None or replace_null):
                 setattr(self, field, val)
-
-
-class APIBase(BaseModelMM):
-    class Config:
-        alias_generator = camelize
-        allow_population_by_field_name = True

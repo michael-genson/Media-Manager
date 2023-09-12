@@ -1,4 +1,4 @@
-from .._base import APIBase
+from ..app.api import APIBase
 
 
 class ExpiredMediaIgnoredItemIn(APIBase):
@@ -16,7 +16,3 @@ class ExpiredMediaIgnoredItem(ExpiredMediaIgnoredItemIn):
 
     class Config:
         orm_mode = True
-
-
-class ExpiredMediaIgnoredItems(APIBase):
-    items: list[ExpiredMediaIgnoredItem]

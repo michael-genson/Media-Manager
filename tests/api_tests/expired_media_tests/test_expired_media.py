@@ -8,8 +8,8 @@ from freezegun import freeze_time
 
 from mediamanager.app import expired_media_settings
 from mediamanager.models.expired_media.expired_media import ExpiredMedia
-from mediamanager.models.ombi import OmbiUser
-from mediamanager.models.tautulli import (
+from mediamanager.models.manage_media.ombi import OmbiUser
+from mediamanager.models.manage_media.tautulli import (
     LibraryType,
     TautulliLibrary,
     TautulliMedia,

@@ -58,6 +58,3 @@ export interface ExpiredMediaIgnoredItemIn {
   name?: string;
   ttl?: number;
 }
-export interface ExpiredMediaIgnoredItems {
-  items: ExpiredMediaIgnoredItem[];
-}

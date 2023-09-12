@@ -3,7 +3,7 @@ import asyncio
 from fastapi import APIRouter, Body, Depends, HTTPException, Path, status
 
 from .. import security
-from ..models.tautulli import TautulliFailedDeletedMedia
+from ..models.manage_media.tautulli import TautulliFailedDeletedMedia
 from ..services.factory import ServiceFactory
 
 router = APIRouter(prefix="/api/manage-media", tags=["Manage Media"], dependencies=[Depends(security.get_current_user)])

@@ -2,7 +2,7 @@ from abc import abstractmethod
 
 from httpx import HTTPStatusError
 
-from ..models.media_managers import BaseMediaManagerMedia, MediaManagerTag, RadarrMedia, SonarrMedia
+from ..models.manage_media.media_managers import BaseMediaManagerMedia, MediaManagerTag, RadarrMedia, SonarrMedia
 from ._base import BaseHTTPClient
 
 

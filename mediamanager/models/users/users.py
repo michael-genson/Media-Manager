@@ -4,7 +4,7 @@ from jose import jwt
 from pydantic import BaseModel
 
 from ...settings import app_settings
-from .._base import APIBase
+from ..app.api import APIBase
 
 secrets = app_settings.AppSecrets()
 

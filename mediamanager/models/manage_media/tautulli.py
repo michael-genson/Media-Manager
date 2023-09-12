@@ -4,7 +4,7 @@ from typing import TypeVar
 
 from pydantic import validator
 
-from ._base import APIBase
+from ..app.api import APIBase
 
 T = TypeVar("T")
 

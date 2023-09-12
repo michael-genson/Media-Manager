@@ -1,5 +1,5 @@
 from ..clients.ombi import OmbiClient
-from ..models.ombi import OmbiUser
+from ..models.manage_media.ombi import OmbiUser
 
 
 class OmbiService:

@@ -1,7 +1,7 @@
 import csv
 from tempfile import NamedTemporaryFile
 
-from ..models.data_exporter import Exportable
+from ..models.app.data_exporter import Exportable
 
 
 class DataExporter:

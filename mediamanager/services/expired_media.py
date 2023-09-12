@@ -5,11 +5,7 @@ from sqlalchemy import update
 
 from ..db.db_setup import session_context
 from ..db.models.expired_media.ignored_items import ExpiredMediaIgnoredItem as ExpiredMediaIgnoredItemDB
-from ..models.expired_media.ignored_items import (
-    ExpiredMediaIgnoredItem,
-    ExpiredMediaIgnoredItemIn,
-    ExpiredMediaIgnoredItems,
-)
+from ..models.expired_media.ignored_items import ExpiredMediaIgnoredItem, ExpiredMediaIgnoredItemIn
 from .factory import ServiceFactory
 
 
@@ -20,7 +16,7 @@ class ExpiredMediaIgnoreListManager:
     def _check_if_expired(cls, item: ExpiredMediaIgnoredItemDB) -> bool:
         return time.time() >= item.ttl if item.ttl is not None else False
 
-    def get_all(self) -> ExpiredMediaIgnoredItems:
+    def get_all(self) -> list[ExpiredMediaIgnoredItem]:
         with session_context() as session:
             live_items: list[ExpiredMediaIgnoredItemDB] = []
             for item in session.query(ExpiredMediaIgnoredItemDB).all():
@@ -30,7 +26,7 @@ class ExpiredMediaIgnoreListManager:
                     session.delete(item)
 
             session.commit()
-            return ExpiredMediaIgnoredItems(items=[ExpiredMediaIgnoredItem.from_orm(item) for item in live_items])
+            return [ExpiredMediaIgnoredItem.from_orm(item) for item in live_items]
 
     async def _process_expired_media_ignored_item(
         self, svcs: ServiceFactory, media: ExpiredMediaIgnoredItemIn

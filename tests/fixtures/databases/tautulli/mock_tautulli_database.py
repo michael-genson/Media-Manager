@@ -1,6 +1,6 @@
 from typing import Any
 
-from mediamanager.models.tautulli import OrderDirection, TautulliMedia
+from mediamanager.models.manage_media.tautulli import OrderDirection, TautulliMedia
 
 from ...clients.mock_http_client import HTTPMethod
 from .._base import BaseMockDatabase
