@@ -1,4 +1,4 @@
-from ..models.tautulli import LibraryType
+from ..models.manage_media.tautulli import LibraryType
 from . import app_config, data_exporter, media_managers, ombi, qbittorrent, smtp, tautulli, users
 
 

@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod, abstractproperty
 from typing import Awaitable
 
 from ..clients.media_managers import MediaManagerBaseClient, RadarrClient, SonarrClient
-from ..models.media_managers import BaseMediaManagerMedia, MediaManagerTag
+from ..models.manage_media.media_managers import BaseMediaManagerMedia, MediaManagerTag
 
 
 class MediaManagerServiceBase(ABC):

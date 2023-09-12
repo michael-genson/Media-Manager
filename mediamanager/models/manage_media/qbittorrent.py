@@ -4,7 +4,7 @@ from enum import Enum
 from pydantic import Field
 from pydantic.dataclasses import dataclass
 
-from ._base import APIBase
+from ..app.api import APIBase
 
 
 class FileSizeUnit(Enum):

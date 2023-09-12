@@ -1,7 +1,7 @@
 from qbittorrent import Client  # type: ignore
 from requests.exceptions import HTTPError
 
-from ..models.qbittorrent import QBTTorrent, QBTTorrentFilter
+from ..models.manage_media.qbittorrent import QBTTorrent, QBTTorrentFilter
 
 
 class QBTService:

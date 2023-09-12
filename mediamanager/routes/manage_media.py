@@ -2,8 +2,10 @@ import asyncio
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Path, status
 
+from mediamanager.models.app.api import GenericCollection
+
 from .. import security
-from ..models.tautulli import TautulliFailedDeletedMedia
+from ..models.manage_media.tautulli import TautulliFailedDeletedMedia, TautulliLibrary
 from ..services.factory import ServiceFactory
 
 router = APIRouter(prefix="/api/manage-media", tags=["Manage Media"], dependencies=[Depends(security.get_current_user)])
@@ -46,7 +48,25 @@ async def _remove_media(svcs: ServiceFactory, rating_key: str) -> None:
         raise RemoveMediaException(rating_key) from e
 
 
-@router.post("/remove/bulk", response_model=TautulliFailedDeletedMedia)
+@router.get("/libraries", response_model=GenericCollection[TautulliLibrary])
+async def get_all_libraries() -> GenericCollection[TautulliLibrary]:
+    svcs = ServiceFactory()
+    libraries = await svcs.tautulli.get_all_libraries()
+    return GenericCollection(items=libraries)
+
+
+@router.delete("/media/{ratingKey}", status_code=status.HTTP_200_OK)
+async def remove_media(rating_key: str = Path(..., alias="ratingKey")) -> None:
+    """Removes media from all systems"""
+
+    svcs = ServiceFactory()
+    try:
+        return await _remove_media(svcs, rating_key)
+    except RemoveMediaException as e:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=f"Failed to remove media: {e.detail}") from e
+
+
+@router.post("/media/remove-bulk", response_model=TautulliFailedDeletedMedia)
 async def remove_media_bulk(rating_keys: list[str] = Body(..., alias="ratingKeys")) -> TautulliFailedDeletedMedia:
     """Removes media from all systems. If media is unable to be removed, it's returned in the response body"""
 
@@ -62,14 +82,3 @@ async def remove_media_bulk(rating_keys: list[str] = Body(..., alias="ratingKeys
             for failure in failures
         }
     )
-
-
-@router.delete("/remove/{ratingKey}", status_code=status.HTTP_200_OK)
-async def remove_media(rating_key: str = Path(..., alias="ratingKey")) -> None:
-    """Removes media from all systems"""
-
-    svcs = ServiceFactory()
-    try:
-        return await _remove_media(svcs, rating_key)
-    except RemoveMediaException as e:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=f"Failed to remove media: {e.detail}") from e

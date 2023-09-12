@@ -1,9 +1,9 @@
 from typing import Any
 
-from .._base import APIBase
-from ..data_exporter import Exportable
-from ..ombi import OmbiUser
-from ..tautulli import TautulliMedia
+from ..app.api import APIBase
+from ..app.data_exporter import Exportable
+from ..manage_media.ombi import OmbiUser
+from ..manage_media.tautulli import TautulliMedia
 
 
 class ExpiredMedia(APIBase, Exportable):

@@ -2,7 +2,7 @@ from abc import abstractproperty
 
 from pydantic import Field
 
-from ._base import APIBase
+from ..app.api import APIBase
 
 
 class BaseMediaManagerMedia(APIBase):

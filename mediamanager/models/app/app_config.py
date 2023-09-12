@@ -1,4 +1,4 @@
-from .._base import APIBase
+from .api import APIBase
 
 
 class AppConfig(APIBase):

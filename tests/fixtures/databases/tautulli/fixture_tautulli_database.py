@@ -1,7 +1,7 @@
 import pytest
 
 from mediamanager.clients.tautulli import TautulliClient
-from mediamanager.models.tautulli import (
+from mediamanager.models.manage_media.tautulli import (
     LibraryType,
     TautulliLibrary,
     TautulliMedia,

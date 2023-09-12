@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from ._base import APIBase
+from ..app.api import APIBase
 
 
 class OmbiUser(APIBase):

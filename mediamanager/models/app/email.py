@@ -4,10 +4,8 @@ from email.message import EmailMessage
 
 from fastapi.templating import Jinja2Templates
 
-from ..app import STATIC_DIR
-from ..settings import app_settings
+from mediamanager.settings import app_settings
 
-email_templates = Jinja2Templates(directory=f"{STATIC_DIR}/email_templates")
 settings = app_settings.AppSettings()
 
 
@@ -27,6 +25,16 @@ class GenericEmailTemplate:
     def __init__(self, template: str, is_html: bool = False) -> None:
         self.template = template
         self.is_html = is_html
+        self._email_templates: Jinja2Templates | None = None
+
+    @property
+    def email_templates(self):
+        if not self._email_templates:
+            from ...app import STATIC_DIR
+
+            self._email_templates = Jinja2Templates(directory=f"{STATIC_DIR}/email_templates")
+
+        return self._email_templates
 
     def message(
         self,
@@ -43,7 +51,7 @@ class GenericEmailTemplate:
         if attachments is None:
             attachments = []
 
-        body_template = email_templates.get_template(self.template)
+        body_template = self.email_templates.get_template(self.template)
         body = body_template.render(**kwargs)
 
         if isinstance(recipients, list):
