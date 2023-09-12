@@ -40,6 +40,12 @@ class TautulliService:
             # the media has never been watched, so we compare against its age instead
             return media_age.days >= last_watched_threshold
 
+    async def get_all_libraries(self) -> list[TautulliLibrary]:
+        if self._all_libraries is None:
+            self._all_libraries = await self._client.get_libraries()
+
+        return self._all_libraries
+
     async def get_media_detail(self, rating_key: str, ignore_http_errors: bool = False) -> TautulliMediaDetail | None:
         try:
             if rating_key not in self._media_detail_by_rating_key:
@@ -86,11 +92,8 @@ class TautulliService:
         if monitored_libraries:
             monitored_libraries = [_.lower() for _ in monitored_libraries]
 
-        if not self._all_libraries:
-            self._all_libraries = await self._client.get_libraries()
-
         expired_media_tasks: list[asyncio.Task[TautulliMedia | None]] = []
-        for library in self._all_libraries:
+        for library in await self.get_all_libraries():
             if not library.is_active:
                 continue
             if not library.count:
