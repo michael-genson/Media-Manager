@@ -2,10 +2,23 @@ import random
 
 from fastapi.testclient import TestClient
 
-from mediamanager.models.manage_media.tautulli import TautulliMedia
+from mediamanager.models.app.api import GenericCollection
+from mediamanager.models.manage_media.tautulli import LibraryType, TautulliLibrary, TautulliMedia
 from mediamanager.routes import manage_media
 from tests.fixtures.databases.media_managers.mock_media_manager_database import RadarrMockDatabase
 from tests.utils.generators import random_int, random_string
+
+
+def test_get_all_libraries(
+    api_client: TestClient, auth_headers: dict, tautulli_libraries: dict[LibraryType, TautulliLibrary]
+):
+    response = api_client.get(manage_media.router.url_path_for("get_all_libraries"), headers=auth_headers)
+    assert response.status_code == 200
+
+    fetched_libraries = GenericCollection[TautulliLibrary].parse_obj(response.json())
+    fetched_ids = {library.section_id for library in fetched_libraries.items}
+    for library in tautulli_libraries.values():
+        assert library.section_id in fetched_ids
 
 
 def test_remove_media(
