@@ -1,6 +1,7 @@
 from typing import Generic, TypeVar
 
 from humps.main import camelize
+from pydantic.generics import GenericModel
 
 from .._base import BaseModelMM
 
@@ -14,5 +15,5 @@ class APIBase(BaseModelMM):
 T = TypeVar("T", bound=APIBase)
 
 
-class GenericCollection(APIBase, Generic[T]):
+class GenericCollection(GenericModel, Generic[T]):
     items: list[T]
