@@ -7,6 +7,9 @@ class AppConfig(SqlAlchemyBase):
     __tablename__ = "app_config"
     id: Mapped[str] = mapped_column(primary_key=True, default=SqlAlchemyBase.generate_guid)
 
+    monitored_library_ids_json: Mapped[str | None] = mapped_column()
+    """A JSON encoded string representing a list of library ids"""
+
     ombi_url: Mapped[str | None] = mapped_column()
     ombi_api_key: Mapped[str | None] = mapped_column()
 
