@@ -1,8 +1,6 @@
 <template>
     <main :class="attrs.class.main" style="width: 100%;">
-        <v-progress-circular v-if="!appConfigIsReady" indeterminate color="primary" />
         <v-card
-            :visible="appConfigIsReady"
             :class="attrs.class.card"
             :min-width="$vuetify.display.smAndDown ? undefined : 480"
             :width="$vuetify.display.smAndDown ? '100%' : '80%'"
@@ -13,7 +11,7 @@
                 <h2>App Config</h2>
             </v-card-title>
             <v-divider />
-            <AppConfigForm @isReady="appConfigIsReady = true" />
+            <AppConfigForm />
         </v-card>
     </main>
 </template>
@@ -24,9 +22,7 @@ import { computed, ref } from "vue";
 import { useDisplay } from "vuetify";
 
 const display = useDisplay();
-
 const isMobile = ref(display.smAndDown);
-const appConfigIsReady = ref(false);
 
 const attrs = computed( () => {
     return isMobile.value ? {
