@@ -1,5 +1,5 @@
 <template>
-    <div v-if="isReady">
+    <div v-if="appConfig && isReady">
         <v-form v-model="formIsValid" @submit.prevent="handleSubmit">
             <v-container class="mb-4 pa-0 d-flex flex-wrap justify-center">
                 <v-card :class="attrs.class.card" :style="attrs.style.card">
@@ -61,7 +61,7 @@
                         <v-select
                             v-model="selectedLibraryChoices"
                             label="Monitored Libraries"
-                            :items="libraryChoices"
+                            :items="allLibraryChoices"
                             item-title="sectionName"
                             multiple
                             chips
@@ -152,41 +152,35 @@
                 <div v-if="!isLoading">Submit</div>
             </v-btn>
         </v-form>
-        <v-snackbar v-model="showSuccess" timeout="5000" color="success" location="top">
-            <div class="text-center">App Config successfully updated</div>
-        </v-snackbar>
-        <v-snackbar v-model="showFail" timeout="5000" color="danger" location="top">
-            <div class="text-center">Oops, something went wrong</div>
-        </v-snackbar>
     </div>
     <div v-else class="mx-auto" style="width: fit-content;">
         <v-progress-circular indeterminate color="primary" :size="128" :width="6" />
     </div>
+    <v-snackbar v-model="showSuccess" timeout="5000" color="success" location="top">
+        <div class="text-center">App Config successfully updated</div>
+    </v-snackbar>
+    <v-snackbar v-model="showFail" timeout="5000" color="danger" location="top">
+        <div class="text-center text-white">Oops, something went wrong</div>
+    </v-snackbar>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 
-import { useApi } from "@/services/backend/client";
-import type { AppConfig } from "@/types/mediamanager/app";
-import type { GenericCollection } from "@/types/non_generated/api";
+import { useAppConfig } from "@/services/use-app-config";
 import type { TautulliLibrary } from "@/types/mediamanager/expired-media";
 import { useDisplay } from "vuetify";
 
+const { actions: appConfigActions, appConfig, allLibraryChoices, selectedLibraryChoices } = useAppConfig();
 const display = useDisplay();
 
-const api = useApi();
-const appConfig = ref<AppConfig>({});
 const formIsValid = ref(false);
 const isLoading = ref(true);
 const isReady = ref(false);
 const isMobile = ref(display.smAndDown);
 
-const showFail = ref(false);
+const showFail = computed(() => !isLoading.value && !appConfig.value);
 const showSuccess = ref(false);
-
-const libraryChoices = ref<TautulliLibrary[]>([]);
-const selectedLibraryChoices = ref<string[]>([]);
 
 const attrs = computed(() => {
     return isMobile.value ? {
@@ -207,11 +201,15 @@ const attrs = computed(() => {
 })
 
 async function handleSubmit() {
+    if (!appConfig.value) {
+        return;
+    }
+
     isLoading.value = true;
 
     // populate monitoredLibraryIds
     const libraryChoicesByName = new Map<string, TautulliLibrary>();
-    libraryChoices.value.forEach((choice) => {
+        allLibraryChoices.value.forEach((choice) => {
         libraryChoicesByName.set(choice.sectionName, choice);
     })
 
@@ -229,60 +227,20 @@ async function handleSubmit() {
         appConfig.value.monitoredLibraryIds = [];
     }
 
-    const { data } = await api.put<AppConfig>("/api/config", appConfig.value);
-    if (data) {
-        appConfig.value = data;
+    await appConfigActions.update(appConfig.value);
+    if (appConfig.value) {
         showSuccess.value = true;
     }
-    else {
-        showFail.value = true;
-    }
+
     isLoading.value = false;
 }
 
-async function refreshConfig() {
-    const { data } = await api.get<AppConfig>("/api/config")
-    if (!data) {
-        showFail.value = true;
-        return;
-    }
-
-    appConfig.value = data;
-}
-
-async function refreshLibraryChoices() {
-    const { data } = await api.get<GenericCollection<TautulliLibrary>>("/api/manage-media/libraries");
-    if (!data) {
-        return;
-    }
-
-    libraryChoices.value = data.items.filter((choice) => choice.sectionType !== "unknown" && choice.isActive).sort(
-        (a, b) => {
-            return a.sectionName > b.sectionName ? 1 : -1;
+watch([isReady, () => appConfig.value, () => allLibraryChoices.value], ([isReadyVal, configVal, choicesVal]) => {
+    if (configVal && choicesVal.length) {
+        if (!isReadyVal) {
+            isReady.value = true;
+            isLoading.value = false;
         }
-    );
-}
-
-async function refreshAll() {
-    await Promise.all([
-        refreshConfig(),
-        refreshLibraryChoices(),
-    ]);
-
-    if (!(appConfig.value?.monitoredLibraryIds?.length && libraryChoices.value?.length)) {
-        return;
     }
-
-    // populate selected choices
-    const choices: string[] = [];
-    libraryChoices.value.forEach((choice) => {
-        if (appConfig.value.monitoredLibraryIds?.includes(choice.sectionId)) {
-            choices.push(choice.sectionName);
-        };
-    });
-
-    selectedLibraryChoices.value = choices;
-}
-
-refreshAll().then( () => { isLoading.value = false; isReady.value = true; })
+});
 </script>
