@@ -168,8 +168,9 @@
 import { computed, ref, watch } from "vue";
 
 import { useAppConfig } from "@/services/use-app-config";
-import type { TautulliLibrary } from "@/types/mediamanager/expired-media";
 import { useDisplay } from "vuetify";
+import type { TautulliLibrary } from "@/types/mediamanager/expired-media";
+
 
 const { actions: appConfigActions, appConfig, allLibraryChoices, selectedLibraryChoices } = useAppConfig();
 const display = useDisplay();
