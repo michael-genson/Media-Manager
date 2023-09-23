@@ -10,7 +10,7 @@ class OverseerrClient(BaseHTTPClient):
         self._user_by_id: dict[int, OverseerrUser | None] = {}
         """Internal user cache"""
 
-        return super().__init__(base_params={"X-Api-Key": api_key})
+        return super().__init__(base_headers={"X-Api-Key": api_key})
 
     def _url(self, endpoint: str, version: int = 1) -> str:
         if not endpoint or endpoint == "/":
