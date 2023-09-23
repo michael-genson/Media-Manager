@@ -11,7 +11,7 @@ from ..models.expired_media.ignored_items import (
     ExpiredMediaIgnoredItem,
     ExpiredMediaIgnoredItemIn,
 )
-from ..models.manage_media.ombi import OmbiUser
+from ..models.manage_media.overseerr import OverseerrUser
 from ..models.manage_media.tautulli import TautulliMedia
 from ..scheduler import cron, scheduler
 from ..services.expired_media import ExpiredMediaIgnoreListManager
@@ -38,9 +38,13 @@ async def _get_expired_media(svcs: ServiceFactory, media: TautulliMedia) -> Expi
 
         # if there are tags, one of them should be an Ombi username
         tags = await media_manager_service.get_tags_from_media(db_id)
-        user: OmbiUser | None = None
+        user: OverseerrUser | None = None
         for tag in tags:
-            user = await svcs.ombi.get_user_by_username(tag.label)
+            user_id = svcs.overseerr.get_user_id_from_tag(tag)
+            if user_id is None:
+                continue
+
+            user = await svcs.overseerr.get_user(user_id)
             if user:
                 break
 
