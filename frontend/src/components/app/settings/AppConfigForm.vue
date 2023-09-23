@@ -2,16 +2,16 @@
     <v-form v-model="formIsValid" @submit.prevent="handleSubmit">
         <v-container class="mb-4 pa-0 d-flex flex-wrap justify-center">
             <v-card :class="attrs.class.card" :style="attrs.style.card">
-                <v-card-title>Ombi</v-card-title>
+                <v-card-title>Overseerr</v-card-title>
                 <v-card-text>
                     <v-text-field
-                        v-model="appConfig.ombiUrl"
+                        v-model="appConfig.overseerrUrl"
                         label="URL"
-                        placeholder="https://your-ombi-url.com"
+                        placeholder="https://your-overseerr-url.com"
                         density="compact"
                     />
                     <v-text-field
-                        v-model="appConfig.ombiApiKey"
+                        v-model="appConfig.overseerrApiKey"
                         label="API Key"
                         type="password"
                         density="compact"

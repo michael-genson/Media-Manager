@@ -10,7 +10,7 @@ export type LibraryType = "movie" | "show" | "unknown";
 export interface ExpiredMedia {
   media: TautulliMedia;
   mediaUrl?: string;
-  user?: OmbiUser;
+  user?: OverseerrUser;
 }
 export interface TautulliMedia {
   library: TautulliLibrary;
@@ -39,13 +39,16 @@ export interface TautulliMediaDetail {
   title: string;
   guids?: string[];
 }
-export interface OmbiUser {
-  id: string;
-  userName: string;
-  emailAddress: string;
-  alias: string;
-  lastLoggedIn?: string;
-  hasLoggedIn: boolean;
+export interface OverseerrUser {
+  id: number;
+  email: string;
+  username?: string;
+  displayName?: string;
+  plexId?: number;
+  plexUsername?: string;
+  avatar?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 export interface ExpiredMediaIgnoredItem {
   ratingKey: string;
