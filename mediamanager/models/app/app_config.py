@@ -15,6 +15,9 @@ class AppConfig(APIBase):
     ombi_url: str | None = None
     ombi_api_key: str | None = None
 
+    overseerr_url: str | None = None
+    overseerr_api_key: str | None = None
+
     qbittorrent_url: str | None = None
     qbittorrent_username: str | None = None
     qbittorrent_password: str | None = None

@@ -77,6 +77,9 @@ class _AppConfigDefaults(BaseSettings):
     ombi_url: str = ""
     ombi_api_key: str = ""
 
+    overseerr_url: str = ""
+    overseerr_api_key: str = ""
+
     qbittorrent_url: str = ""
     qbittorrent_username: str = ""
     qbittorrent_password: str = ""

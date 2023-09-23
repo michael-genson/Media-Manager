@@ -37,6 +37,8 @@ def override_app_config():
         AppConfig(
             ombi_url=random_string(),
             ombi_api_key=random_string(),
+            overseerr_url=random_string(),
+            overseerr_api_key=random_string(),
             qbittorrent_url=random_url(),
             qbittorrent_username=random_string(),
             qbittorrent_password=random_string(),

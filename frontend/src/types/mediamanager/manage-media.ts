@@ -47,6 +47,17 @@ export interface OmbiUser {
   lastLoggedIn?: string;
   hasLoggedIn: boolean;
 }
+export interface OverseerrUser {
+  id: number;
+  email: string;
+  username?: string;
+  displayName?: string;
+  plexId?: number;
+  plexUsername?: string;
+  avatar?: string;
+  createdAt: string;
+  updatedAt: string;
+}
 export interface QBTTorrent {
   hash: string;
   addedOn: string;

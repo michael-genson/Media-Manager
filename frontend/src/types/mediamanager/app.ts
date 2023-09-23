@@ -9,6 +9,8 @@ export interface AppConfig {
   monitoredLibraryIds?: string[];
   ombiUrl?: string;
   ombiApiKey?: string;
+  overseerrUrl?: string;
+  overseerrApiKey?: string;
   qbittorrentUrl?: string;
   qbittorrentUsername?: string;
   qbittorrentPassword?: string;
