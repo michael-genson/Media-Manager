@@ -1,5 +1,5 @@
 from ..models.manage_media.tautulli import LibraryType
-from . import app_config, data_exporter, media_managers, ombi, qbittorrent, smtp, tautulli, users
+from . import app_config, data_exporter, media_managers, ombi, overseerr, qbittorrent, smtp, tautulli, users
 
 
 class ServiceFactory:
@@ -8,6 +8,7 @@ class ServiceFactory:
         self._users: users.UserService | None = None
 
         self._ombi: ombi.OmbiService | None = None
+        self._overseer: overseerr.OverseerrService | None = None
         self._qbittorrent: qbittorrent.QBTService | None = None
         self._radarr: media_managers.RadarrService | None = None
         self._sonarr: media_managers.SonarrService | None = None
@@ -29,6 +30,15 @@ class ServiceFactory:
             self._users = users.UserService()
 
         return self._users
+
+    @property
+    def overseerr(self):
+        if not self._overseer:
+            self._overseer = overseerr.OverseerrService(
+                self.app_config.config.overseerr_url, self.app_config.config.overseerr_api_key
+            )
+
+        return self._overseer
 
     @property
     def ombi(self):

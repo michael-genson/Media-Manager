@@ -42,7 +42,7 @@ class AppSecrets:
 
 class AppSettings(BaseSettings):
     app_title = "MediaManager"
-    app_version = "0.2.3"
+    app_version = "0.3.0"
     debug = False
 
     db_file: str = os.path.join(CONFIG_DIR, "media_manager.db")
@@ -76,6 +76,9 @@ class _AppConfigDefaults(BaseSettings):
     ### Media ###
     ombi_url: str = ""
     ombi_api_key: str = ""
+
+    overseerr_url: str = ""
+    overseerr_api_key: str = ""
 
     qbittorrent_url: str = ""
     qbittorrent_username: str = ""

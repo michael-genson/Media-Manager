@@ -13,6 +13,9 @@ class AppConfig(SqlAlchemyBase):
     ombi_url: Mapped[str | None] = mapped_column()
     ombi_api_key: Mapped[str | None] = mapped_column()
 
+    overseerr_url: Mapped[str | None] = mapped_column()
+    overseerr_api_key: Mapped[str | None] = mapped_column()
+
     qbittorrent_url: Mapped[str | None] = mapped_column()
     qbittorrent_username: Mapped[str | None] = mapped_column()
     qbittorrent_password: Mapped[str | None] = mapped_column()
