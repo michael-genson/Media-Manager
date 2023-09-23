@@ -8,7 +8,7 @@ from freezegun import freeze_time
 
 from mediamanager.app import expired_media_settings
 from mediamanager.models.expired_media.expired_media import ExpiredMedia
-from mediamanager.models.manage_media.ombi import OmbiUser
+from mediamanager.models.manage_media.overseerr import OverseerrUser
 from mediamanager.models.manage_media.tautulli import (
     LibraryType,
     TautulliLibrary,
@@ -106,14 +106,14 @@ def test_get_expired_media_with_media(
     api_client: TestClient,
     auth_headers: dict,
     tautulli_movies: list[TautulliMedia],
-    ombi_users: list[OmbiUser],
+    overseerr_users: list[OverseerrUser],
     radarr_db: RadarrMockDatabase,
 ):
     tag_ids: list[str] = []
-    user: OmbiUser | None = None
+    user: OverseerrUser | None = None
     if add_user:
-        user = random.choice(ombi_users)
-        tag = radarr_db.create_tag(user.user_name)
+        user = random.choice(overseerr_users)
+        tag = radarr_db.create_tag(f"{user.id} - {user.username or user.name}")
         tag_ids.append(tag.id)
 
     movie = random.choice(tautulli_movies)
