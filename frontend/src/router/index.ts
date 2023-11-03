@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router"
 import HomeView from "@/views/HomeView.vue";
-import SchedulerView from "@/views/SchedulerView.vue";
 import AppSettingsView from "@/views/AppSettingsView.vue";
 
 const router = createRouter({
@@ -10,11 +9,6 @@ const router = createRouter({
       path: "/",
       name: "home",
       component: HomeView,
-    },
-    {
-      path: "/scheduler",
-      name: "app scheduler",
-      component: SchedulerView,
     },
     {
       path: "/settings",
