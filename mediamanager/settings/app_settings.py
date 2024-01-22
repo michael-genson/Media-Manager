@@ -42,7 +42,7 @@ class AppSecrets:
 
 class AppSettings(BaseSettings):
     app_title = "MediaManager"
-    app_version = "0.3.0"
+    app_version = "0.3.1"
     debug = False
 
     db_file: str = os.path.join(CONFIG_DIR, "media_manager.db")
