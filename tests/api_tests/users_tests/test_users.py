@@ -98,7 +98,7 @@ def test_delete_user(api_client: TestClient, auth_headers: dict):
     assert r.status_code == 404
 
     # the deleted user shouldn't be able to authenticate
-    auth_headers["authorization"] = f"Bearer {user.create_token()}"
+    auth_headers["Authorization"] = f"Bearer {user.create_token()}"
     r = api_client.get(users.router.url_path_for("get_all_users"), headers=auth_headers)
     assert r.status_code == 401
 
