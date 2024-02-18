@@ -1,5 +1,6 @@
 from datetime import UTC, datetime
 from enum import Enum
+from logging import getLogger
 from typing import TypeVar
 
 from pydantic import validator
@@ -7,6 +8,7 @@ from pydantic import validator
 from ..app.api import APIBase
 
 T = TypeVar("T")
+logger = getLogger("tautulli")
 
 
 class OrderDirection(Enum):
@@ -22,6 +24,7 @@ class LibraryType(Enum):
 
     @classmethod
     def _missing_(cls, value: object):
+        logger.warning(f"Unknown LibraryType: {value}")
         return cls.unknown
 
 
