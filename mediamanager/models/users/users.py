@@ -1,6 +1,6 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
-from jose import jwt
+import jwt
 from pydantic import BaseModel
 
 from ...settings import app_settings
@@ -28,7 +28,7 @@ class User(APIBase):
         if not expires:
             expires = timedelta(minutes=60 * 24 * 30)  # TODO: make this configurable
 
-        expiration = datetime.utcnow() + expires
+        expiration = datetime.now(UTC) + expires
         data = {"sub": self.email, "exp": expiration}
         return jwt.encode(data, secrets.db_secret_key, algorithm=secrets.db_algorithm)
 

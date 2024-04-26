@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from freezegun import freeze_time
@@ -109,7 +109,7 @@ def test_get_user_from_invalid_token(svcs: ServiceFactory):
         svcs.users.get_authenticated_user_from_token(random_string())
 
     token = new_user.create_token(timedelta(days=random_int(1, 10)))
-    with freeze_time(datetime.utcnow() + timedelta(days=random_int(365 * 10, 365 * 20))):
+    with freeze_time(datetime.now(UTC) + timedelta(days=random_int(365 * 10, 365 * 20))):
         with pytest.raises(InvalidTokenError):
             svcs.users.get_authenticated_user_from_token(token)
 
