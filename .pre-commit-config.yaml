@@ -12,7 +12,7 @@ repos:
       - id: trailing-whitespace
         exclude: ^tests/data/
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 24.4.2
     hooks:
     -   id: black
         exclude: "alembic/*"
