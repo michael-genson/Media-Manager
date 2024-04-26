@@ -1,4 +1,5 @@
-from jose import JWTError, jwt
+import jwt
+from jwt import PyJWTError
 from passlib.context import CryptContext
 from sqlalchemy.exc import IntegrityError
 
@@ -58,7 +59,7 @@ class UserService:
             payload = jwt.decode(token, secrets.db_secret_key, algorithms=[secrets.db_algorithm])
             email: str | None = payload.get("sub")
 
-        except JWTError:
+        except PyJWTError:
             raise InvalidTokenError()
 
         if not email:

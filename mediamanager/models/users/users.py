@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from jose import jwt
+import jwt
 from pydantic import BaseModel
 
 from ...settings import app_settings
