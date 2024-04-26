@@ -33,12 +33,10 @@ class MediaManagerBaseClient(BaseHTTPClient):
         return MediaManagerTag.parse_obj(data)
 
     @abstractmethod
-    async def get_media_by_db_id(self, db_id: str) -> BaseMediaManagerMedia | None:
-        ...
+    async def get_media_by_db_id(self, db_id: str) -> BaseMediaManagerMedia | None: ...
 
     @abstractmethod
-    async def delete_media(self, id: str, delete_files: bool = False) -> None:
-        ...
+    async def delete_media(self, id: str, delete_files: bool = False) -> None: ...
 
 
 class RadarrClient(MediaManagerBaseClient):

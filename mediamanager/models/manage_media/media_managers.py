@@ -15,8 +15,7 @@ class BaseMediaManagerMedia(APIBase):
     root_folder_path: str
 
     @abstractproperty
-    def db_url(self) -> str:
-        ...
+    def db_url(self) -> str: ...
 
 
 class RadarrMedia(BaseMediaManagerMedia):
