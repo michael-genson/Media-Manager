@@ -46,7 +46,7 @@ class AppSettings(BaseSettings):
     debug = False
 
     db_file: str = os.path.join(CONFIG_DIR, "media_manager.db")
-    default_user_email: str = "changeme@email.com"
+    default_user_email: str = "changeme@example.com"
     default_user_password: str = "password"
 
     uvicorn_workers: int = 1
